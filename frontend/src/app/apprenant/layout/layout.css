@@ -1,0 +1,952 @@
+/*
+  Styles du Dashboard Apprenant KAAYNUJÀNG.
+
+/* Apparence générale du composant principal. */
+
+:host {
+  display: block;
+
+  /* Le fond couvre au minimum toute la hauteur de la fenêtre. */
+  min-height: 100vh;
+
+  /* Police provisoire, en attendant de confirmer celle de la maquette. */
+  font-family: Arial, sans-serif;
+
+  /* Couleur principale des textes et fond de la page. */
+  color: #172554;
+  background-color: #f8fafc;
+}
+
+/* Conteneur principal du dashboard. */
+.dashboard {
+    min-height: calc(100vh - 72px);
+
+
+  /* Les espacements intérieurs sont inclus dans les dimensions du bloc. */
+  box-sizing: border-box;
+
+  /* Espace entre les bords de la page et son contenu. */
+  padding: 32px;
+}
+
+/* Titre du message d'accueil. */
+.welcome h1 {
+  /* Suppression des marges par défaut et espace sous le titre. */
+  margin: 0 0 8px;
+
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* Texte descriptif placé sous le titre. */
+.welcome p {
+  margin: 0;
+
+  /* Couleur plus discrète pour le texte secondaire. */
+  color: #64748b;
+
+  font-size: 15px;
+  line-height: 1.6;
+}
+/* Barre supérieure */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  height: 72px;
+  padding: 0 24px;
+
+  background-color: #172554;
+  color: #ffffff;
+}
+
+
+/* Bouton de menu sans bordure ni fond. */
+.menu-button {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Trois traits représentant le menu. */
+.menu-button span {
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background-color: currentColor;
+}
+
+/* Retour visuel au survol du bouton. */
+.menu-button:hover {
+  background-color: rgb(255 255 255 / 10%);
+}
+
+/* Repère visible pour la navigation au clavier. */
+.menu-button:focus-visible {
+  outline: 2px solid #4ade80;
+  outline-offset: 3px;
+}
+
+/* Alignement du symbole et du nom de la plateforme. */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Carré vert contenant l'initiale de la plateforme. */
+.brand-symbol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+
+  background-color: #4ade80;
+  color: #172554;
+
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* Nom de la plateforme. */
+.brand-name {
+  font-size: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+/* Actions à droite de la barre */
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  gap: 16px;
+  margin-left: auto;
+}
+
+/* Bouton des notifications */
+.notification-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 40px;
+  padding: 0;
+
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.notification-button:hover {
+  background-color: rgb(255 255 255 / 10%);
+}
+
+.notification-button:focus-visible {
+  outline: 2px solid #4ade80;
+  outline-offset: 3px;
+}
+/* Avatar par défaut */
+.profile-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  background-color: #e2e8f0;
+  color: #172554;
+}
+
+/* Grille des statistiques */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 28px;
+}
+
+/* Carte de statistique */
+.stat-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  min-height: 128px;
+  padding: 20px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 3px rgb(15 23 42 / 10%);
+}
+
+/* Intitulé de la statistique */
+.stat-card h2 {
+  margin: 0 0 6px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+
+/* Valeur de la statistique */
+.stat-value {
+  margin: 0;
+  color: #172554;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Une colonne sur les petits écrans */
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* Cercle autour des icônes */
+.stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+/* Dessin des icônes */
+.stat-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Couleurs des icônes */
+.stat-icon-blue {
+  background-color: #eff6ff;
+  color: #0c2943;
+}
+
+.stat-icon-green {
+  background-color: #f0fdf4;
+  color: #00c853;
+}
+
+.stat-icon-yellow {
+  background-color: #fefce8;
+  color: #d99a00;
+}
+/* Carte de reprise */
+.resume-card {
+  position: relative;
+  overflow: hidden;
+
+  margin-top: 28px;
+  padding: 28px;
+  border-radius: 16px;
+
+  background-color: #172554;
+  color: #ffffff;
+}
+
+/* Décoration en arrière-plan */
+.resume-card::before {
+  content: "";
+  position: absolute;
+  top: -60px;
+  right: -60px;
+
+  width: 230px;
+  height: 230px;
+  border-radius: 50%;
+  background-color: rgb(255 255 255 / 5%);
+  pointer-events: none;
+}
+
+/* Contenu placé devant la décoration */
+.resume-card > * {
+  position: relative;
+}
+
+/* Badge de reprise */
+.resume-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 20px;
+
+  background-color: #4ade80;
+  color: #172554;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.resume-card h2 {
+  margin: 16px 0 8px;
+  font-size: 22px;
+  line-height: 1.4;
+}
+
+.resume-module {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Barre et pourcentage */
+.resume-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 24px;
+  font-size: 14px;
+}
+
+.resume-progress {
+  flex: 1;
+  min-width: 0;
+  height: 8px;
+
+  appearance: none;
+  border: none;
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: #334155;
+}
+
+.resume-progress::-webkit-progress-bar {
+  background-color: #334155;
+  border-radius: 20px;
+}
+
+.resume-progress::-webkit-progress-value {
+  background-color: #4ade80;
+  border-radius: 20px;
+}
+
+.resume-progress::-moz-progress-bar {
+  background-color: #4ade80;
+  border-radius: 20px;
+}
+
+/* Bouton de reprise */
+.resume-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  margin-top: 24px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+
+  background-color: #4ade80;
+  color: #172554;
+  font: inherit;
+  font-weight: 700;
+}
+
+.resume-button:disabled {
+  cursor: not-allowed;
+}
+
+/* Bloc des cours */
+.courses-card {
+  margin-top: 28px;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 3px rgb(15 23 42 / 5%);
+}
+
+/* Titre et accès à la liste complète */
+.courses-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.courses-header h2 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+.view-all-button {
+  padding: 4px 0;
+  border: none;
+  background: transparent;
+  color: #172554;
+  font: inherit;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.view-all-button:disabled {
+  cursor: not-allowed;
+}
+
+/* Ligne d'un cours */
+.course-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 0;
+}
+
+.course-row + .course-row {
+  border-top: 1px solid #f1f5f9;
+}
+
+/* Image provisoire */
+.course-thumbnail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  background-color: #eff6ff;
+  color: #172554;
+}
+
+/* Informations du cours */
+.course-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.course-info h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.course-info p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+/* Progression du cours */
+.course-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.course-progress-row span {
+  color: #64748b;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.course-progress {
+  flex: 1;
+  min-width: 0;
+  height: 6px;
+
+  appearance: none;
+  border: none;
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: #e2e8f0;
+}
+
+.course-progress::-webkit-progress-bar {
+  background-color: #e2e8f0;
+  border-radius: 20px;
+}
+
+.course-progress::-webkit-progress-value {
+  background-color: #172554;
+  border-radius: 20px;
+}
+
+.course-progress::-moz-progress-bar {
+  background-color: #172554;
+  border-radius: 20px;
+}
+
+/* Liste de cours vide */
+.courses-empty {
+  margin: 0;
+  padding: 24px 0;
+  color: #64748b;
+  font-size: 14px;
+  text-align: center;
+}
+/* Bloc des évaluations */
+.evaluations-card {
+  margin-top: 28px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 3px rgb(15 23 42 / 10%);
+  overflow: hidden;
+}
+
+/* Titre du bloc */
+.evaluations-header {
+  padding: 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.evaluations-header h2 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.4;
+}
+
+.evaluations-body {
+  padding: 24px;
+}
+
+/* Ligne d'une évaluation */
+.evaluation-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.evaluation-row + .evaluation-row {
+  margin-top: 24px;
+}
+
+/* Horloge orange */
+.evaluation-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+
+  background-color: #fff7ed;
+  color: #ff4d00;
+}
+
+/* Informations de l'évaluation */
+.evaluation-info {
+  min-width: 0;
+}
+
+.evaluation-info h3 {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.evaluation-info p {
+  margin: 0 0 8px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Étiquette d'échéance */
+.evaluation-deadline {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+
+  background-color: #f3f4f6;
+  color: #475569;
+  font-size: 14px;
+}
+
+/* Bouton du calendrier */
+.calendar-button {
+  width: 100%;
+  margin-top: 30px;
+  padding: 12px 16px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background-color: #ffffff;
+  color: #172554;
+
+  font: inherit;
+  font-weight: 500;
+}
+
+.calendar-button:disabled {
+  cursor: not-allowed;
+}
+
+/* Aucune évaluation */
+.evaluations-empty {
+  margin: 0;
+  padding: 16px 0;
+  color: #64748b;
+  text-align: center;
+}
+
+/* Carte d'activité */
+.activity-card {
+  margin-top: 28px;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 3px rgb(15 23 42 / 10%);
+}
+
+.activity-card h2 {
+  margin: 0 0 36px;
+  font-size: 22px;
+  line-height: 1.4;
+}
+
+/* Graphique et échelle */
+.activity-chart {
+  display: flex;
+  gap: 10px;
+  max-width: 640px;
+}
+
+/* Échelle en heures */
+.activity-axis {
+  position: relative;
+  flex-shrink: 0;
+  width: 24px;
+  height: 200px;
+
+  color: #64748b;
+  font-size: 14px;
+  text-align: right;
+}
+
+/* Alignement des graduations */
+.activity-axis span {
+  position: absolute;
+  right: 0;
+  line-height: 1;
+  transform: translateY(-50%);
+}
+
+.activity-axis span:nth-child(1) {
+  top: 0;
+}
+
+.activity-axis span:nth-child(2) {
+  top: 25%;
+}
+
+.activity-axis span:nth-child(3) {
+  top: 50%;
+}
+
+.activity-axis span:nth-child(4) {
+  top: 75%;
+}
+
+.activity-axis span:nth-child(5) {
+  top: 100%;
+}
+
+/* Zone du graphique */
+.activity-plot {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+
+/* Lignes horizontales */
+.activity-grid {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 200px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  pointer-events: none;
+}
+
+.activity-grid span {
+  border-top: 1px dashed #dbe5f1;
+}
+
+/* Colonnes des sept jours */
+.activity-columns {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.activity-column {
+  min-width: 0;
+  text-align: center;
+}
+
+.activity-bar-area {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 200px;
+}
+
+/* Barre d'activité */
+.activity-bar {
+  width: 30px;
+  max-width: 70%;
+  border-radius: 5px 5px 0 0;
+  background-color: #0c2943;
+}
+
+/* Libellé du jour */
+.activity-day {
+  display: block;
+  margin-top: 18px;
+  color: #64748b;
+  font-size: 14px;
+}
+/* Fond assombri derrière le menu */
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+
+  padding: 0;
+  border: none;
+  background-color: rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+/* Menu latéral */
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 101;
+
+  width: 300px;
+  max-width: 90vw;
+  overflow-y: auto;
+
+  background-color: #ffffff;
+  box-shadow: 4px 0 16px rgb(0 0 0 / 15%);
+}
+
+/* En-tête du menu */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  min-height: 72px;
+  padding: 0 24px;
+
+  background-color: #172554;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Bouton de fermeture */
+.sidebar-close {
+  width: 36px;
+  height: 36px;
+
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #ffffff;
+
+  font-size: 30px;
+  cursor: pointer;
+}
+
+.sidebar-close:focus-visible {
+  outline: 2px solid #4ade80;
+}
+
+/* Contenu du menu */
+.sidebar-nav {
+  padding: 24px 16px;
+}
+
+.sidebar-group-title {
+  margin: 0 12px 12px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+/* Lien du menu */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 8px;
+
+  background: transparent;
+  color: #172554;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  gap: 12px;
+}
+
+/* Page sélectionnée */
+.sidebar-link-active {
+  background-color: #eff6ff;
+  font-weight: 600;
+}
+/* Espacement entre les groupes */
+.sidebar-link + .sidebar-group-title {
+  margin-top: 24px;
+}
+
+/* Pages non reliées */
+.sidebar-link:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+/* Déconnexion */
+.sidebar-logout {
+  color: #dc2626;
+}
+
+/* Icônes du menu */
+.sidebar-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Barre supérieure sur petit écran */
+@media (max-width: 480px) {
+  .topbar {
+    gap: 8px;
+    padding: 0 12px;
+  }
+
+  .brand {
+    gap: 6px;
+  }
+
+  .brand-symbol {
+    width: 30px;
+    height: 30px;
+    font-size: 20px;
+  }
+
+  .brand-name {
+    font-size: 14px;
+  }
+
+  .topbar-actions {
+    gap: 6px;
+  }
+
+  .menu-button,
+  .notification-button {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+
+  .profile-avatar {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+}
+/* Barre supérieure blanche */
+.topbar {
+  background-color: #ffffff;
+  color: #172554;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Boutons de la barre supérieure */
+.notification-button {
+  color: #172554;
+}
+
+.menu-button:hover,
+.notification-button:hover {
+  background-color: #eff6ff;
+}
+
+/* Menu latéral bleu */
+.sidebar {
+  background-color: #172554;
+  color: #ffffff;
+}
+
+/* Séparation de l'en-tête du menu */
+.sidebar-header {
+  border-bottom: 1px solid rgb(255 255 255 / 15%);
+}
+
+/* Titres des groupes */
+.sidebar-group-title {
+  color: #cbd5e1;
+}
+
+/* Textes et icônes du menu */
+.sidebar-link {
+  color: #ffffff;
+}
+
+/* Page sélectionnée */
+.sidebar-link-active {
+  background-color: rgb(255 255 255 / 12%);
+  color: #ffffff;
+}
+
+/* Déconnexion */
+.sidebar-logout {
+  color: #fca5a5;
+}

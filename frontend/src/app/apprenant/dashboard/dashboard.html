@@ -1,0 +1,592 @@
+<!-- Barre supérieure -->
+<header class="topbar">
+  <button
+    class="menu-button"
+    type="button"
+    aria-label="Ouvrir le menu"
+    [attr.aria-expanded]="menuOuvert()"
+    (click)="menuOuvert.set(true)"
+  >
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+  </button>
+
+  <!-- Logo -->
+  <div class="brand">
+    <!-- Chapeau de graduation -->
+<span class="brand-symbol" aria-hidden="true">
+  <svg
+    width="28"
+    height="28"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="m2 9 10-5 10 5-10 5-10-5Z" />
+    <path d="M6 11v6c4 3 8 3 12 0v-6" />
+    <path d="M22 9v7" />
+  </svg>
+</span>
+
+    <span class="brand-name">KAAYNUJÀNG</span>
+  </div>
+
+  <div class="topbar-actions">
+    <!-- Notifications -->
+    <button
+      class="notification-button"
+      type="button"
+      aria-label="Notifications"
+    >
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+        <path d="M10 21h4" />
+      </svg>
+    </button>
+
+    <!-- Profil par défaut -->
+    <span class="profile-avatar" role="img" aria-label="Profil utilisateur">
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="8" r="4" />
+        <path d="M5 21v-2a7 7 0 0 1 14 0v2" />
+      </svg>
+    </span>
+  </div>
+</header>
+
+@if (menuOuvert()) {
+  <!-- Fond assombri -->
+  <button
+    class="menu-overlay"
+    type="button"
+    aria-label="Fermer le menu"
+    (click)="menuOuvert.set(false)"
+  ></button>
+
+  <!-- Menu latéral -->
+  <aside class="sidebar" aria-label="Menu principal">
+    <div class="sidebar-header">
+      <span>KAAYNUJÀNG</span>
+
+      <button
+        class="sidebar-close"
+        type="button"
+        aria-label="Fermer le menu"
+        (click)="menuOuvert.set(false)"
+      >
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Navigation apprenant">
+      <p class="sidebar-group-title">Tableau de bord</p>
+
+      <!-- Accueil -->
+      <button
+        class="sidebar-link sidebar-link-active"
+        type="button"
+        (click)="menuOuvert.set(false)"
+      >
+        <svg
+          class="sidebar-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m3 10 9-7 9 7" />
+          <path d="M5 9v12h14V9" />
+          <path d="M9 21v-8h6v8" />
+        </svg>
+        <span>Accueil</span>
+      </button>
+
+      <!-- Apprentissage -->
+      <p class="sidebar-group-title">Apprentissage</p>
+
+        <button
+         class="sidebar-link"
+         type="button"
+         routerLink="/apprenant/mes-cours"
+          >
+        <svg
+          class="sidebar-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M12 5v15" />
+          <path d="M12 5C9 3 5 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Z" />
+        </svg>
+        <span>Mes cours</span>
+      </button>
+
+        <button
+         class="sidebar-link"
+         type="button"
+         routerLink="/apprenant/catalogue"
+         (click)="menuOuvert.set(false)"
+        >
+
+        <svg
+          class="sidebar-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="3" y="14" width="7" height="7" rx="1" />
+          <rect x="14" y="14" width="7" height="7" rx="1" />
+        </svg>
+        <span>Catalogue des cours</span>
+      </button>
+
+        <button
+         class="sidebar-link"
+         type="button"
+         routerLink="/apprenant/quiz"
+        >
+        <svg
+          class="sidebar-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+          <path d="M14 2v6h6" />
+          <path d="m8 15 3 3 5-6" />
+        </svg>
+        <span>Quiz et évaluations</span>
+      </button>
+
+      <!-- Suivi -->
+      <p class="sidebar-group-title">Suivi</p>
+
+        <button
+         class="sidebar-link"
+         type="button"
+         routerLink="/apprenant/resultats"
+        >
+        <svg
+          class="sidebar-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M4 3v17h17" />
+          <path d="M9 16v-5M14 16V7M19 16V4" />
+        </svg>
+        <span>Mes résultats</span>
+      </button>
+
+        <button
+          class="sidebar-link"
+          type="button"
+          routerLink="/apprenant/certificats"
+        >
+        <svg
+          class="sidebar-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="8" r="6" />
+          <path d="m8 13-1 9 5-3 5 3-1-9" />
+        </svg>
+        <span>Mes certificats</span>
+      </button>
+
+      <!-- Échanges -->
+      <p class="sidebar-group-title">Échanges</p>
+
+        <button
+         class="sidebar-link"
+         type="button"
+         routerLink="/apprenant/forum"
+        >
+        <svg
+          class="sidebar-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M21 11a8 8 0 0 1-8 8H7l-5 3V11a8 8 0 0 1 8-8h3a8 8 0 0 1 8 8Z" />
+          <path d="M7 9h10M7 13h6" />
+        </svg>
+        <span>Forum</span>
+      </button>
+
+      <button
+       class="sidebar-link"
+       type="button"
+       routerLink="/apprenant/notifications"
+      >
+        <svg
+          class="sidebar-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+          <path d="M10 21h4" />
+        </svg>
+        <span>Notifications</span>
+      </button>
+
+      <!-- Compte -->
+      <p class="sidebar-group-title">Compte</p>
+
+       <button
+        class="sidebar-link"
+        type="button"
+        routerLink="/apprenant/profil"
+        >
+
+        <svg
+          class="sidebar-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="8" r="4" />
+          <path d="M5 21v-2a7 7 0 0 1 14 0v2" />
+        </svg>
+        <span>Mon profil</span>
+      </button>
+
+      <button
+        class="sidebar-link sidebar-logout"
+        type="button"
+        routerLink="/apprenant/deconnexion"
+      >
+        <svg
+          class="sidebar-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <path d="M9 12h12" />
+          <path d="m16 7 5 5-5 5" />
+        </svg>
+        <span>Déconnexion</span>
+      </button>
+    </nav>
+  </aside>
+}
+
+<!-- Contenu du dashboard -->
+<main class="dashboard">
+  <section class="welcome" aria-labelledby="welcome-title">
+    <!-- Accueil personnalisé -->
+<h1 id="welcome-title">
+  {{ salutation }}{{ username() ? ', ' + username() : '' }} !
+</h1>
+
+    <p>Retrouvez vos cours et suivez votre progression.</p>
+  </section>
+
+  <!-- Statistiques -->
+  <section class="stats-grid" aria-label="Statistiques de l'apprenant">
+    <article class="stat-card">
+      <div class="stat-content">
+        <h2>Cours en cours</h2>
+        <p class="stat-value" aria-label="Donnée non disponible">—</p>
+      </div>
+
+      <span class="stat-icon stat-icon-blue" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M8 5a1 1 0 0 1 1.5-.9l10 7a1 1 0 0 1 0 1.8l-10 7A1 1 0 0 1 8 19Z" />
+        </svg>
+      </span>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-content">
+        <h2>Cours terminés</h2>
+        <p class="stat-value" aria-label="Donnée non disponible">—</p>
+      </div>
+
+      <span class="stat-icon stat-icon-green" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M20 13v7H4V4h12" />
+          <path d="m9 10 4 4 8-9" />
+        </svg>
+      </span>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-content">
+        <h2>Moyenne générale</h2>
+        <p class="stat-value" aria-label="Donnée non disponible">—</p>
+      </div>
+
+      <span class="stat-icon stat-icon-blue" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M6 20v-6M12 20V9M18 20V4" />
+        </svg>
+      </span>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-content">
+        <h2>Certificats obtenus</h2>
+        <p class="stat-value" aria-label="Donnée non disponible">—</p>
+      </div>
+
+      <span class="stat-icon stat-icon-yellow" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="8" r="6" />
+          <path d="m8 13-1 9 5-3 5 3-1-9" />
+        </svg>
+      </span>
+    </article>
+  </section>
+
+  <!-- Cours à commencer ou à reprendre -->
+  <section class="resume-card" aria-labelledby="resume-title">
+    <span class="resume-badge">
+      {{ coursAReprendre.progression === 0 ? 'À commencer' : 'Reprendre' }}
+    </span>
+
+    <h2 id="resume-title">{{ coursAReprendre.titre }}</h2>
+    <p class="resume-module">{{ coursAReprendre.module }}</p>
+
+    <div class="resume-progress-row">
+      <progress
+        class="resume-progress"
+        [value]="coursAReprendre.progression"
+        max="100"
+        aria-label="Progression du cours"
+      ></progress>
+      <span>{{ coursAReprendre.progression }} %</span>
+    </div>
+
+    <button class="resume-button" type="button" disabled>
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m8 5 11 7-11 7V5Z" />
+      </svg>
+
+      {{ coursAReprendre.progression === 0 ? 'Commencer' : 'Continuer' }}
+    </button>
+  </section>
+
+  <!-- Liste des cours -->
+  <section class="courses-card" aria-labelledby="courses-title">
+    <div class="courses-header">
+      <h2 id="courses-title">Mes cours en cours</h2>
+      <!-- Mes cours -->
+     <!-- Accès à la liste des cours -->
+<button
+  class="view-all-button"
+  type="button"
+  routerLink="/apprenant/mes-cours"
+>
+  Voir tout
+</button>
+
+
+    </div>
+
+    @for (cours of coursEnCours; track cours.id) {
+      <article class="course-row">
+        <div class="course-thumbnail" aria-hidden="true">
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 5v15" />
+            <path d="M12 5C9 3 5 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Z" />
+          </svg>
+        </div>
+
+        <div class="course-info">
+          <h3>{{ cours.titre }}</h3>
+          <p>{{ cours.formateur }}</p>
+
+          <div class="course-progress-row">
+            <progress
+              class="course-progress"
+              [value]="cours.progression"
+              max="100"
+              [attr.aria-label]="'Progression : ' + cours.titre"
+            ></progress>
+            <span>{{ cours.progression }} %</span>
+          </div>
+        </div>
+      </article>
+    } @empty {
+      <p class="courses-empty">Aucun cours pour le moment.</p>
+    }
+  </section>
+
+  <!-- Prochaines évaluations -->
+  <section class="evaluations-card" aria-labelledby="evaluations-title">
+    <div class="evaluations-header">
+      <h2 id="evaluations-title">Prochaines évaluations</h2>
+    </div>
+
+    <div class="evaluations-body">
+      @for (evaluation of evaluations; track evaluation.id) {
+        <article class="evaluation-row">
+          <span class="evaluation-icon" aria-hidden="true">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+            </svg>
+          </span>
+
+          <div class="evaluation-info">
+            <h3>{{ evaluation.titre }}</h3>
+            <p>{{ evaluation.cours }}</p>
+            <span class="evaluation-deadline">
+              {{ evaluation.echeance }}
+            </span>
+          </div>
+        </article>
+      } @empty {
+        <p class="evaluations-empty">
+          Aucune évaluation prévue pour le moment.
+        </p>
+      }
+
+      <button class="calendar-button" type="button" disabled>
+        Voir le calendrier
+      </button>
+    </div>
+  </section>
+
+  <!-- Activité hebdomadaire -->
+  <section class="activity-card" aria-labelledby="activity-title">
+    <h2 id="activity-title">Activité récente (heures)</h2>
+
+    <div class="activity-chart">
+      <div class="activity-axis" aria-hidden="true">
+        <span>8</span>
+        <span>6</span>
+        <span>4</span>
+        <span>2</span>
+        <span>0</span>
+      </div>
+
+      <div class="activity-plot">
+        <div class="activity-grid" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
+        <div class="activity-columns">
+          @for (activite of activiteHebdomadaire; track activite.jour) {
+            <div class="activity-column">
+              <div
+                class="activity-bar-area"
+                role="img"
+                [attr.aria-label]="activite.jour + ' : ' + activite.heures + ' heures'"
+              >
+                <div
+                  class="activity-bar"
+                  [style.height.%]="activite.heures / 8 * 100"
+                ></div>
+              </div>
+
+              <span class="activity-day" aria-hidden="true">
+                {{ activite.jour }}
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
