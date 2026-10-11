@@ -1,0 +1,97 @@
+<!-- Dashboard formateur -->
+
+<div class="flex flex-col min-h-screen m-0 p-0 bg-gray-100">
+    <div class="p-4 mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+            <h1 class="text-2xl font-semibold text-blue-950">
+            Bonjour, {{ formateur.nom }} {{ formateur.prenom }}!
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+            Voici un aperçu de vos activités aujourd'hui.
+        </p>
+        </div>
+
+        <button
+                type="button"
+                class="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none "
+                (click)="goToCreateCourse()"
+            >
+                Créer un cours
+        </button>
+    </div>
+
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4 p-4">
+        <div class="bg-white p-4 rounded-lg shadow-md flex gap-2">
+            <span class="material-icons text-blue-600 bg-blue-100 p-3 rounded-2xl">book</span>
+            <div>
+                 <p class="text-gray-600 dark:text-gray-400">Cours publiés</p>
+                 <p>{{ coursPublies }}</p>
+            </div>
+           
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-md flex gap-2">
+            <span class="material-icons text-orange-600 bg-orange-100 p-3 rounded-2xl">drafts</span>
+            <div>
+                <p class="text-gray-600 dark:text-gray-400">Cours en brouillon</p>
+                <p>{{ coursBrouillon }}</p>
+            </div>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-md flex gap-2">
+            <span class="material-icons text-indigo-600 bg-indigo-100 p-3 rounded-2xl">group</span>
+            <div>
+                <p class="text-gray-600 dark:text-gray-400">Apprenants inscrits</p>
+                <p>{{ apprenantsInscrits }}</p>
+            </div>
+
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-md flex gap-2">
+            <span class="material-icons text-red-600 bg-red-100 p-3 rounded-2xl">edit</span>
+            <div>
+                <p class="text-gray-600 dark:text-gray-400">Évaluations à corriger</p>
+                <p>{{ evaluations }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="flex flex-row gap-4 mt-4 p-4 sm:flex-col md:flex-row">
+        <div class="mt-4 p-4 bg-white rounded-lg shadow-md w-0 flex-1 sm:w-full md:w-1/2">
+            <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <h2 class="text-xl font-semibold text-blue-950">Gestion des cours</h2>
+            </div>
+            <div class="flex items-center gap-2">
+                <input
+                    type="text"
+                    placeholder="Rechercher un cours..."
+                    (input)="filterCourses()"
+                    (keyup.enter)="filterCourses()"
+                    class="w- px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                    Filtrer
+                </button>
+            </div>
+            </div>
+            
+        </div>
+        <div class="mt-4 p-4 bg-white rounded-lg shadow-md">
+            <div class="flex items-center gap-1.5 mb-4">
+                <h2 class="text-xl font-semibold text-blue-950">A corriger</h2>
+                <span class=" font-bold text-sm bg-red-400 text-white rounded-4xl p-0.5 pl-1 pr-1 ">{{ evaluations }}</span>
+            </div>
+
+            <ul class="mt-2 gap-1 flex flex-col">
+                <li class="text-gray-600 dark:text-gray-400 p-1">Quiz 1 - Les bases HTML</li>
+                <li class="text-gray-600 dark:text-gray-400 p-1">Projet final JS</li>
+            </ul>
+
+            <button
+                type="button"
+                class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                (click)="goToCorrections()"
+            >
+                Voir les évaluations à corriger
+            </button>
+        </div>
+    </div>
+</div>
