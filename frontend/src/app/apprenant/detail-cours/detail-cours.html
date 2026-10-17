@@ -1,0 +1,104 @@
+<main class="detail-cours-page">
+
+  <!-- Retour au catalogue --->
+<a
+  class="back-link"
+  routerLink="/apprenant/catalogue"
+  aria-label="Retour au catalogue"
+  title="Retour au catalogue"
+>
+ <svg
+  width="20"
+  height="20"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+ >
+  <path d="M19 12H5" />
+  <path d="m12 19-7-7 7-7" />
+ </svg>
+</a>
+
+  @if (cours(); as coursSelectionne) {
+    <!-- Présentation du cours -->
+    <article class="course-detail-card">
+
+      <img
+        class="course-detail-image"
+        [src]="coursSelectionne.image"
+        [alt]="coursSelectionne.titre"
+      />
+
+      <div class="course-detail-content">
+        <span class="course-detail-level">
+          {{ coursSelectionne.niveau }}
+        </span>
+
+        <h1>{{ coursSelectionne.titre }}</h1>
+
+        <p class="course-detail-description">
+          {{ coursSelectionne.description }}
+        </p>
+
+         <!-- Inscription au cours -->
+<button
+  class="enroll-button"
+  type="button"
+  [disabled]="estInscrit()"
+  (click)="inscrireAuCours()"
+>
+  {{ estInscrit() ? 'Cours déjà rejoint' : 'S’inscrire au cours' }}
+</button>
+
+      </div>
+
+    </article>
+        <!-- Programme du cours -->
+    <section class="course-program" aria-labelledby="programme-title">
+      <h2 id="programme-title">Programme du cours</h2>
+
+      @for (module of coursSelectionne.modules ?? []; track module.id) {
+        <article class="course-module">
+          <h3>{{ module.titre }}</h3>
+
+          <ol class="module-lessons">
+            @for (lecon of module.lecons; track lecon.id) {
+              <li class="module-lesson">
+            <!-- Ouverture de la leçon -->
+               <a
+                 class="lesson-link"
+                 [routerLink]="[
+                 '/apprenant/cours',
+                  coursSelectionne.id,
+                 'lecons',
+                  lecon.id
+               ]"
+               >
+               {{ lecon.titre }}
+                </a>
+              </li>
+
+            } @empty {
+              <li>Aucune leçon disponible dans ce module.</li>
+            }
+          </ol>
+        </article>
+      } @empty {
+        <p>Le programme de ce cours n’est pas encore disponible.</p>
+      }
+    </section>
+
+  } @else {
+    <!-- Identifiant de cours inconnu -->
+    <section class="course-not-found">
+      <h1>Cours introuvable</h1>
+
+      <p>Ce cours n’existe pas dans le catalogue.</p>
+    </section>
+  }
+
+</main>

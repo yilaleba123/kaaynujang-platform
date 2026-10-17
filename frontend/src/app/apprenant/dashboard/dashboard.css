@@ -1,7 +1,7 @@
-/*
-  Styles du Dashboard Apprenant KAAYNUJÀNG.
+/* Styles du Dashboard Apprenant KAAYNUJÀNG. */
 
 /* Apparence générale du composant principal. */
+
 
 :host {
   display: block;
@@ -112,22 +112,24 @@
   gap: 10px;
 }
 
-/* Carré vert contenant l'initiale de la plateforme. */
+/* Chapeau vert du logo */
 .brand-symbol {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-
+  flex-shrink: 0;
   width: 36px;
   height: 36px;
-  border-radius: 8px;
-
-  background-color: #4ade80;
-  color: #172554;
-
-  font-size: 24px;
-  font-weight: 700;
+  background: transparent;
+  color: #00b35a;
 }
+
+.brand-symbol svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 
 /* Nom de la plateforme. */
 .brand-name {
@@ -187,8 +189,8 @@
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
-  margin-top: 28px;
+  gap: 16px;
+  margin-top: 24px;
 }
 
 /* Carte de statistique */
@@ -196,15 +198,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
 
-  min-height: 128px;
+  box-sizing: border-box;
+  min-height: 108px;
   padding: 20px;
 
   border: 1px solid #e2e8f0;
   border-radius: 16px;
   background-color: #ffffff;
-  box-shadow: 0 2px 3px rgb(15 23 42 / 10%);
+  box-shadow: 0 2px 3px rgb(15 23 42 / 6%);
 }
 
 /* Intitulé de la statistique */
@@ -949,4 +952,42 @@
 /* Déconnexion */
 .sidebar-logout {
   color: #fca5a5;
+}
+/* Quatre statistiques par ligne sur grand écran */
+@media (min-width: 1100px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+/* Organisation du dashboard sur grand écran */
+@media (min-width: 1100px) {
+  .dashboard {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: 24px;
+    align-content: start;
+  }
+
+  /* Sections sur toute la largeur */
+  .welcome,
+  .stats-grid,
+  .resume-card,
+  .activity-card {
+    grid-column: 1 / -1;
+  }
+
+  /* Le gap de la grille remplace les marges entre les sections */
+  .stats-grid,
+  .resume-card,
+  .courses-card,
+  .evaluations-card,
+  .activity-card {
+    margin-top: 0;
+  }
+
+  /* Les cartes peuvent rétrécir sans déborder */
+  .courses-card,
+  .evaluations-card {
+    min-width: 0;
+  }
 }
