@@ -1,87 +1,27 @@
-<!--Page pour les quiz du formateur-->
-
-<div class="flex flex-col min-h-screen bg-gray-100">
-    <div class="p-4 mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-            <h1 class="text-2xl font-semibold text-blue-950">
-                Mes quiz
-            </h1>
-            <p class="text-gray-600 dark:text-gray-400">
-                Voici la liste de vos quiz.
-            </p>
-        </div>
-
-        <button
-                type="button"
-                class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none "
-                (click)="goToCreateQuiz()"
-            >
-                Créer un quiz
-        </button>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4 p-4">
-        <div class="bg-white p-4 rounded-lg shadow-md">
-            <p class="text-gray-600 dark:text-gray-400">Quiz publiés</p>
-            <p>{{ quizPublies }}</p>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow-md">
-            <p class="text-gray-600 dark:text-gray-400">Quiz en brouillon</p>
-            <p>{{ quizBrouillon }}</p>
-        </div>
-    </div>
-
-    <div class="mt-4 p-4 bg-white rounded-lg shadow-md">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-semibold text-blue-950">Liste des quiz</h2>
-            <div class="flex items-center gap-2">
-                <input
-                    type="text"
-                    placeholder="Rechercher un quiz..."
-                    (input)="filterQuizzes()"
-                    (keyup.enter)="filterQuizzes()"
-                    class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                    Filtrer
-                </button>
-            </div>
-        </div>
-
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                @for (quiz of filteredQuizzes(); track quiz.id) {
-                <tr>
-                    <td class="px-6 py-4 whitespace-nowrap">{{ quiz.titre }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">{{ quiz.statut }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <button
-                            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none"
-                            (click)="editQuiz(quiz.id)"
-                        >
-                            Éditer
-                        </button>
-                        <button
-                            class="ml-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none"
-                            (click)="deleteQuiz(quiz.id)"
-                        >
-                            Supprimer
-                        </button>
-                    </td>
-                </tr>
-                } @empty {
-                <tr>
-                    <td colspan="3" class="px-6 py-4 text-center text-gray-500">Aucun quiz trouvé.</td>
-                </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+<div class="flex items-center justify-between">
+  <h1 class="page-title">Mes quiz</h1>
+  <a routerLink="/formateur/quiz/nouveau" class="btn-primary"><app-icon name="plus" /> Nouveau quiz</a>
 </div>
+
+@if (error()) {
+  <p class="mt-8 rounded-lg bg-red-50 p-4 text-red-700">Impossible de charger les quiz.</p>
+} @else if (quizzes(); as list) {
+  <ul class="mt-8 divide-y divide-slate-200 rounded-2xl border border-slate-200">
+    @for (q of list; track q.id) {
+      <li class="flex items-center gap-4 px-6 py-4">
+        <span class="grid h-11 w-11 place-items-center rounded-lg bg-purple-50 text-purple-600"><app-icon name="help" /></span>
+        <div class="min-w-0 flex-1">
+          <p class="truncate font-semibold">{{ q.title }}</p>
+          <p class="truncate text-sm text-slate-500">{{ q.courseTitle }} · {{ q.questionsCount }} questions</p>
+        </div>
+        <span class="hidden text-sm text-slate-400 sm:block">{{ q.updatedAt | date: 'dd MMM y' }}</span>
+        <a [routerLink]="['/formateur/quiz', q.id]" aria-label="Modifier" class="text-slate-400 hover:text-slate-700"><app-icon name="edit" /></a>
+        <button type="button" (click)="remove(q)" aria-label="Supprimer" class="text-slate-400 hover:text-red-600"><app-icon name="trash" /></button>
+      </li>
+    } @empty {
+      <li class="px-6 py-10 text-center text-slate-500">Aucun quiz pour le moment.</li>
+    }
+  </ul>
+} @else {
+  <p class="mt-8 text-slate-400">Chargement…</p>
+}

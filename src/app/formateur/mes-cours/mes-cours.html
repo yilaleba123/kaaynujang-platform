@@ -1,89 +1,48 @@
-<!-- Page pour les cours du formateur -->
-
-<div class="flex flex-col min-h-screen bg-gray-100">
-    <div class="p-4 mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-            <h1 class="text-2xl font-semibold text-blue-950">
-                Mes cours
-            </h1>
-            <p class="text-gray-600 dark:text-gray-400">
-                Voici la liste de vos cours.
-            </p>
-        </div>
-
-        <button
-                type="button"
-                class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none "
-                (click)="goToCreateCourse()"
-            >
-                Créer un cours
-        </button>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4 p-4">
-        <div class="bg-white p-4 rounded-lg shadow-md">
-            <p class="text-gray-600 dark:text-gray-400">Cours publiés</p>
-            <p>{{ coursPublies }}</p>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow-md">
-            <p class="text-gray-600 dark:text-gray-400">Cours en brouillon</p>
-            <p>{{ coursBrouillon }}</p>
-        </div>
-    </div>
-
-    <div class="mt-4 p-4 bg-white rounded-lg shadow-md">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-semibold text-blue-950">Liste des cours</h2>
-            <div class="flex items-center gap-2">
-                <input
-                    type="text"
-                    placeholder="Rechercher un cours..."
-                    (input)="filterCourses()"
-                    (keyup.enter)="filterCourses()"
-                    class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                    Filtrer
-                </button>
-            </div>
-        </div>
-
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-               @for (cours of filteredCourses(); track cours.id) {
-                <tr>
-                    <td class="px-6 py-4 whitespace-nowrap">{{ cours.titre }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">{{ cours.statut }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <button
-                            type="button"
-                            class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none"
-                            (click)="goToEditCourse(cours.id)"
-                        >
-                            Modifier
-                        </button>
-                        <button
-                            type="button"
-                            class="ml-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none"
-                            (click)="deleteCourse(cours.id)"
-                        >
-                            Supprimer
-                        </button>
-                    </td>
-                </tr>
-               } @empty {
-                <tr>
-                    <td colspan="3" class="px-6 py-4 text-center text-gray-500">Aucun cours trouvé.</td>
-                </tr>
-               }
-            </tbody>
-        </table>
-    </div>
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <h1 class="page-title">Mes cours</h1>
+  <a routerLink="/formateur/cree-cours" class="btn-primary"><app-icon name="plus" /> Créer un cours</a>
 </div>
+
+<div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+  <div class="flex flex-wrap gap-2 border-b border-slate-200">
+    @for (t of tabs(); track t.value) {
+      <button type="button" (click)="tab.set(t.value)" class="-mb-px border-b-2 px-4 py-2 font-medium"
+              [class]="tab() === t.value ? 'border-brand text-brand' : 'border-transparent text-slate-500 hover:text-slate-800'">
+        {{ t.label }} <span class="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">{{ t.count }}</span>
+      </button>
+    }
+  </div>
+  <label class="flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-3 text-slate-500 focus-within:border-brand">
+    <app-icon name="search" [size]="18" />
+    <input type="search" placeholder="Rechercher un cours…" (input)="onSearch($event)" class="w-56 bg-transparent text-slate-900 outline-none" />
+  </label>
+</div>
+
+@if (error()) {
+  <p class="mt-8 rounded-lg bg-red-50 p-4 text-red-700">Impossible de charger les cours. <button class="underline" (click)="load()">Réessayer</button></p>
+} @else if (filtered(); as list) {
+  <div class="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+    @for (c of list; track c.id) {
+      <article class="flex flex-col rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <div class="flex items-start justify-between gap-3">
+          <h2 class="text-lg font-bold">{{ c.title }}</h2>
+          <span class="shrink-0 rounded-full border px-3 py-0.5 text-sm font-medium" [ngClass]="statusClass[c.status]">{{ statusLabel[c.status] }}</span>
+        </div>
+        <p class="mt-1 text-slate-500">{{ c.category }}</p>
+        <p class="mt-4 flex items-center gap-2 text-slate-600"><app-icon name="users" [size]="18" /> {{ c.learnersCount }} apprenants</p>
+        <p class="text-sm text-slate-400">Mis à jour le {{ c.updatedAt | date: 'dd MMM y' }}</p>
+        <div class="mt-5 flex gap-4 border-t border-slate-100 pt-4 text-sm font-medium">
+          <a [routerLink]="['/formateur/mes-cours', c.id]" class="text-navy hover:underline">Voir</a>
+          <a [routerLink]="['/formateur/cree-cours', c.id]" class="text-navy hover:underline">Modifier</a>
+          @if (c.status !== 'archived') {
+            <button type="button" (click)="archive(c)" class="text-slate-500 hover:underline">Archiver</button>
+          }
+        </div>
+      </article>
+    } @empty {
+      <p class="col-span-full py-10 text-center text-slate-500">Aucun cours ne correspond.</p>
+    }
+  </div>
+} @else {
+  <p class="mt-8 text-slate-400">Chargement…</p>
+}

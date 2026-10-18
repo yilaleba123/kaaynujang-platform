@@ -1,43 +1,66 @@
-import { Component, computed, signal } from '@angular/core';
+import { DatePipe, NgClass } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { ApiService } from '../../api/api-service';
+import { Course, CourseStatus, STATUS_CLASS, STATUS_LABEL } from '../../api/models';
+import { Icon } from '../../shared/icon';
 
-interface cours {
-  id: number
-  titre: string,
-  statut: string,
-  document: string
-}
+type Tab = CourseStatus | 'all';
 
 @Component({
   selector: 'app-mes-cours',
-  imports: [],
+  imports: [RouterLink, DatePipe, NgClass, Icon],
   templateUrl: './mes-cours.html',
-  styleUrl: './mes-cours.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MesCours {
-  
-  coursPublies = 15
-  coursBrouillon = 4
+  private readonly api = inject(ApiService);
 
-  cours = signal<cours[]>([])
-  searchTerm = signal<string>('')
+  readonly courses = signal<Course[] | null>(null);
+  readonly error = signal(false);
+  readonly search = signal('');
+  readonly tab = signal<Tab>('all');
 
-  goToCreateCourse() {
+  readonly statusLabel = STATUS_LABEL;
+  readonly statusClass = STATUS_CLASS;
 
+  readonly counts = computed(() => {
+    const l = this.courses() ?? [];
+    return {
+      all: l.length,
+      published: l.filter(c => c.status === 'published').length,
+      draft: l.filter(c => c.status === 'draft').length,
+      archived: l.filter(c => c.status === 'archived').length,
+    };
+  });
+
+  readonly tabs = computed<{ value: Tab; label: string; count: number }[]>(() => [
+    { value: 'all', label: 'Tous', count: this.counts().all },
+    { value: 'published', label: 'Publiés', count: this.counts().published },
+    { value: 'draft', label: 'Brouillons', count: this.counts().draft },
+    { value: 'archived', label: 'Archivés', count: this.counts().archived },
+  ]);
+
+  readonly filtered = computed(() => {
+    const l = this.courses();
+    if (!l) return null;
+    const q = this.search().trim().toLowerCase();
+    const t = this.tab();
+    return l.filter(c => (t === 'all' || c.status === t) && (!q || c.title.toLowerCase().includes(q) || c.category.toLowerCase().includes(q)));
+  });
+
+  constructor() { this.load(); }
+
+  load() {
+    this.error.set(false);
+    this.api.getCourses().subscribe({ next: c => this.courses.set(c), error: () => this.error.set(true) });
   }
 
-  filterCourses() {
+  onSearch(e: Event) { this.search.set((e.target as HTMLInputElement).value); }
 
+  archive(c: Course) {
+    if (!confirm(`Archiver « ${c.title} » ?`)) return;
+    this.api.archiveCourse(c.id).subscribe(u =>
+      this.courses.update(l => l?.map(x => (x.id === u.id ? u : x)) ?? null));
   }
-
-  goToEditCourse(id: number) {
-
-  }
-
-  deleteCourse(id: number) {
-
-  }
-
-  filteredCourses = computed(() => {
-    return this.cours().filter(c => c.titre.includes(this.searchTerm()))
-  })
 }

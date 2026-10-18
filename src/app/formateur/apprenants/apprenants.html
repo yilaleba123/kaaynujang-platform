@@ -1,0 +1,46 @@
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <h1 class="page-title">Mes apprenants</h1>
+  <label class="flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-3 text-slate-500 focus-within:border-brand">
+    <app-icon name="search" [size]="18" />
+    <input type="search" placeholder="Nom, email ou cours…" (input)="onSearch($event)" class="w-64 bg-transparent text-slate-900 outline-none" />
+  </label>
+</div>
+
+<div class="mt-8 overflow-x-auto rounded-2xl border border-slate-200">
+  <table class="w-full text-left">
+    <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500">
+      <tr>
+        <th class="px-6 py-4">Apprenant</th>
+        <th class="px-4 py-4">Cours</th>
+        <th class="px-4 py-4">Progression</th>
+        <th class="px-6 py-4">Dernière activité</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-200">
+      @if (filtered(); as list) {
+        @for (l of list; track l.id) {
+          <tr>
+            <td class="px-6 py-4">
+              <p class="font-medium">{{ l.fullName }}</p>
+              <p class="text-sm text-slate-500">{{ l.email }}</p>
+            </td>
+            <td class="px-4 py-4 text-slate-600">{{ l.courseTitle }}</td>
+            <td class="px-4 py-4">
+              <div class="flex items-center gap-3">
+                <div class="h-2 w-32 overflow-hidden rounded-full bg-slate-200">
+                  <div class="h-full rounded-full bg-brand" [style.width.%]="l.progress"></div>
+                </div>
+                <span class="text-sm font-medium">{{ l.progress }}%</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-sm text-slate-500">{{ l.lastActivityAt | date: 'dd MMM y' }}</td>
+          </tr>
+        } @empty {
+          <tr><td colspan="4" class="px-6 py-10 text-center text-slate-500">Aucun apprenant trouvé.</td></tr>
+        }
+      } @else {
+        <tr><td colspan="4" class="px-6 py-10 text-center text-slate-400">Chargement…</td></tr>
+      }
+    </tbody>
+  </table>
+</div>

@@ -1,97 +1,127 @@
-<!-- Dashboard formateur -->
+<div class="flex flex-wrap items-start justify-between gap-4">
+  <div>
+    <h1 class="text-4xl font-extrabold text-navy-dark">Bonjour, {{ me()?.firstName }} !</h1>
+    <p class="mt-2 text-lg text-slate-500">Voici un aperçu de vos activités aujourd'hui.</p>
+  </div>
+  <a routerLink="/formateur/cree-cours"
+     class="inline-flex items-center gap-3 rounded-xl bg-brand px-6 py-4 text-lg font-semibold text-white shadow-sm transition hover:bg-brand-dark">
+    <app-icon name="plus" [size]="24" /> Créer un cours
+  </a>
+</div>
 
-<div class="flex flex-col min-h-screen m-0 p-0 bg-gray-100">
-    <div class="p-4 mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-            <h1 class="text-2xl font-semibold text-blue-950">
-            Bonjour, {{ formateur.nom }} {{ formateur.prenom }}!
-        </h1>
-        <p class="text-gray-600 dark:text-gray-400">
-            Voici un aperçu de vos activités aujourd'hui.
-        </p>
-        </div>
+<section class="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+  @for (c of cards(); track c.label) {
+    <div class="flex items-center gap-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <span class="grid h-14 w-14 place-items-center rounded-xl" [ngClass]="c.tone"><app-icon [name]="c.icon" [size]="26" /></span>
+      <div>
+        <p class="text-slate-600">{{ c.label }}</p>
+        <p class="text-3xl font-extrabold">{{ c.value }}</p>
+      </div>
+    </div>
+  }
+</section>
 
-        <button
-                type="button"
-                class="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none "
-                (click)="goToCreateCourse()"
-            >
-                Créer un cours
+<div class="mt-8 grid gap-6 xl:grid-cols-[1fr_26rem]">
+  <section class="min-w-0 rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div class="flex flex-wrap items-center justify-between gap-4 p-6">
+      <h2 class="text-2xl font-bold text-navy-dark">Gestion des cours</h2>
+      <div class="relative flex items-center gap-3">
+        <label class="flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-3 text-slate-500 focus-within:border-brand">
+          <app-icon name="search" [size]="18" />
+          <input type="search" placeholder="Rechercher un cours..." (input)="onSearch($event)"
+                 class="w-56 bg-transparent text-slate-900 outline-none placeholder:text-slate-400" />
+        </label>
+        <button type="button" (click)="filterOpen.set(!filterOpen())" aria-label="Filtrer"
+                class="grid h-12 w-12 place-items-center rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50"
+                [class.border-brand]="statusFilter()">
+          <app-icon name="filter" />
         </button>
+        @if (filterOpen()) {
+          <ul class="absolute right-0 top-14 z-10 w-44 overflow-hidden rounded-lg border border-slate-200 bg-white text-sm shadow-lg">
+            <li><button type="button" class="w-full px-4 py-2 text-left hover:bg-slate-50" (click)="setStatus(null)">Tous</button></li>
+            @for (s of statuses; track s) {
+              <li><button type="button" class="w-full px-4 py-2 text-left capitalize hover:bg-slate-50" (click)="setStatus(s)">{{ statusLabel[s] }}</button></li>
+            }
+          </ul>
+        }
+      </div>
     </div>
 
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4 p-4">
-        <div class="bg-white p-4 rounded-lg shadow-md flex gap-2">
-            <span class="material-icons text-blue-600 bg-blue-100 p-3 rounded-2xl">book</span>
-            <div>
-                 <p class="text-gray-600 dark:text-gray-400">Cours publiés</p>
-                 <p>{{ coursPublies }}</p>
-            </div>
-           
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow-md flex gap-2">
-            <span class="material-icons text-orange-600 bg-orange-100 p-3 rounded-2xl">drafts</span>
-            <div>
-                <p class="text-gray-600 dark:text-gray-400">Cours en brouillon</p>
-                <p>{{ coursBrouillon }}</p>
-            </div>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow-md flex gap-2">
-            <span class="material-icons text-indigo-600 bg-indigo-100 p-3 rounded-2xl">group</span>
-            <div>
-                <p class="text-gray-600 dark:text-gray-400">Apprenants inscrits</p>
-                <p>{{ apprenantsInscrits }}</p>
-            </div>
-
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow-md flex gap-2">
-            <span class="material-icons text-red-600 bg-red-100 p-3 rounded-2xl">edit</span>
-            <div>
-                <p class="text-gray-600 dark:text-gray-400">Évaluations à corriger</p>
-                <p>{{ evaluations }}</p>
-            </div>
-        </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500">
+          <tr>
+            <th class="px-6 py-4">Titre</th>
+            <th class="px-4 py-4">Catégorie</th>
+            <th class="px-4 py-4 text-right">Apprenants</th>
+            <th class="px-4 py-4 text-center">Statut</th>
+            <th class="px-4 py-4">Mise à jour</th>
+            <th class="px-6 py-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+          @if (filtered(); as list) {
+            @for (c of list; track c.id) {
+              <tr class="hover:bg-slate-50/60">
+                <td class="max-w-[12rem] px-6 py-5 font-medium">{{ c.title }}</td>
+                <td class="px-4 py-5 text-slate-500">{{ c.category }}</td>
+                <td class="px-4 py-5 text-right">{{ c.learnersCount }}</td>
+                <td class="px-4 py-5 text-center">
+                  <span class="inline-block rounded-full border px-3 py-0.5 text-sm font-medium" [ngClass]="statusClass[c.status]">{{ statusLabel[c.status] }}</span>
+                </td>
+                <td class="px-4 py-5 text-sm text-slate-500">{{ c.updatedAt | date: 'dd MMM y' }}</td>
+                <td class="px-6 py-5">
+                  <div class="flex gap-4 text-slate-400">
+                    <a [routerLink]="['/formateur/cree-cours', c.id]" aria-label="Modifier" class="hover:text-slate-700"><app-icon name="edit" [size]="18" /></a>
+                    <a [routerLink]="['/formateur/mes-cours', c.id]" aria-label="Voir" class="hover:text-slate-700"><app-icon name="eye" [size]="18" /></a>
+                    @if (c.status !== 'archived') { <button type="button" (click)="archive(c)" aria-label="Archiver" class="hover:text-slate-700"><app-icon name="archive" [size]="18" /></button> }
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="6" class="px-6 py-10 text-center text-slate-500">Aucun cours trouvé.</td></tr>
+            }
+          } @else {
+            <tr><td colspan="6" class="px-6 py-10 text-center text-slate-400">Chargement…</td></tr>
+          }
+        </tbody>
+      </table>
     </div>
-    <div class="flex flex-row gap-4 mt-4 p-4 sm:flex-col md:flex-row">
-        <div class="mt-4 p-4 bg-white rounded-lg shadow-md w-0 flex-1 sm:w-full md:w-1/2">
-            <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-2">
-                <h2 class="text-xl font-semibold text-blue-950">Gestion des cours</h2>
-            </div>
-            <div class="flex items-center gap-2">
-                <input
-                    type="text"
-                    placeholder="Rechercher un cours..."
-                    (input)="filterCourses()"
-                    (keyup.enter)="filterCourses()"
-                    class="w- px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                    Filtrer
-                </button>
-            </div>
-            </div>
-            
-        </div>
-        <div class="mt-4 p-4 bg-white rounded-lg shadow-md">
-            <div class="flex items-center gap-1.5 mb-4">
-                <h2 class="text-xl font-semibold text-blue-950">A corriger</h2>
-                <span class=" font-bold text-sm bg-red-400 text-white rounded-4xl p-0.5 pl-1 pr-1 ">{{ evaluations }}</span>
-            </div>
 
-            <ul class="mt-2 gap-1 flex flex-col">
-                <li class="text-gray-600 dark:text-gray-400 p-1">Quiz 1 - Les bases HTML</li>
-                <li class="text-gray-600 dark:text-gray-400 p-1">Projet final JS</li>
-            </ul>
-
-            <button
-                type="button"
-                class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                (click)="goToCorrections()"
-            >
-                Voir les évaluations à corriger
-            </button>
-        </div>
+    <div class="border-t border-slate-200 bg-slate-50 px-6 py-4">
+      <a routerLink="/formateur/mes-cours" class="inline-flex items-center gap-2 font-medium text-navy hover:underline">
+        Voir tous les cours <app-icon name="arrow" [size]="14" />
+      </a>
     </div>
+  </section>
+
+  <aside class="h-fit rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div class="flex items-center gap-3 border-b border-slate-200 p-6">
+      <h2 class="text-2xl font-bold text-navy-dark">À corriger</h2>
+      <span class="rounded-full bg-red-100 px-2.5 py-0.5 text-sm font-semibold text-red-600">{{ stats()?.pendingSubmissions ?? 0 }}</span>
+    </div>
+    <ul class="divide-y divide-slate-100">
+      @if (pending(); as items) {
+        @for (p of items; track p.id) {
+          <li>
+            <a routerLink="/formateur/copies" class="flex items-center gap-4 px-6 py-4 hover:bg-slate-50">
+              <span class="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-orange-50 text-orange-500"><app-icon name="file" /></span>
+              <span class="min-w-0 flex-1">
+                <span class="block truncate font-semibold">{{ p.title }}</span>
+                <span class="block truncate text-sm text-slate-500">{{ p.courseTitle }}</span>
+              </span>
+              <span class="rounded bg-slate-100 px-2 py-1 text-sm font-semibold">{{ p.submissionsCount }} copies</span>
+            </a>
+          </li>
+        } @empty {
+          <li class="px-6 py-8 text-center text-slate-500">Rien à corriger.</li>
+        }
+      } @else {
+        <li class="px-6 py-8 text-center text-slate-400">Chargement…</li>
+      }
+    </ul>
+    <div class="border-t border-slate-200 p-4">
+      <a routerLink="/formateur/copies" class="block rounded-lg border border-slate-300 py-3 text-center font-medium hover:bg-slate-50">Voir toutes les évaluations</a>
+    </div>
+  </aside>
 </div>
