@@ -1,0 +1,64 @@
+<main class="mes-cours-page">
+
+  <!-- En-tête de la page -->
+  <section class="mes-cours-header" aria-labelledby="mes-cours-title">
+    <h1 id="mes-cours-title">Mes cours</h1>
+
+    <p>
+      Retrouvez les cours auxquels vous êtes inscrit.
+    </p>
+  </section>
+
+  <!-- Liste des cours inscrits -->
+  <section class="mes-cours-grid" aria-label="Mes cours inscrits">
+
+    @for (cours of mesCours(); track cours.id) {
+      <article class="mes-cours-card">
+
+        <!-- Photo du cours -->
+        <img
+          class="mes-cours-image"
+          [src]="cours.image"
+          [alt]="cours.titre"
+        />
+
+        <div class="mes-cours-content">
+          <span class="mes-cours-level">
+            {{ cours.niveau }}
+          </span>
+
+          <h2>{{ cours.titre }}</h2>
+
+          <p>{{ cours.description }}</p>
+
+          <!-- Accès au détail du cours -->
+          <a
+            class="mes-cours-button"
+            [routerLink]="['/apprenant/cours', cours.id]"
+          >
+            Ouvrir le cours
+          </a>
+        </div>
+
+      </article>
+    } @empty {
+      <!-- Message si aucun cours n'est encore rejoint -->
+      <section class="mes-cours-empty">
+        <h2>Aucun cours pour le moment</h2>
+
+        <p>
+          Explorez le catalogue pour commencer votre apprentissage.
+        </p>
+
+        <a
+          class="catalogue-link"
+          routerLink="/apprenant/catalogue"
+        >
+          Voir le catalogue
+        </a>
+      </section>
+    }
+
+  </section>
+
+</main>

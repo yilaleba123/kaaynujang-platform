@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-brand: #16a34a;
+  --color-brand-dark: #15803d;
+  --color-navy: #1e3a6e;
+  --color-navy-dark: #172f58;
+}
+
+body { @apply bg-slate-100 text-slate-900 antialiased; }
+
+@layer components {
+  .field { @apply w-full rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-brand; }
+  .btn-primary { @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-6 py-3 font-semibold text-white transition hover:bg-brand-dark disabled:opacity-50; }
+  .btn-outline { @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-6 py-3 font-semibold transition hover:bg-slate-50 disabled:opacity-50; }
+  .page-title { @apply text-3xl font-extrabold text-navy-dark; }
+  .err { @apply mt-1 text-sm text-red-600; }
+}
+
+/*
+ * Base globale de l'application KAAYNUJÀNG.
+ * Supprime les espacements extérieurs autour de la page.
+ */
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Inclut les bordures et les espacements intérieurs
+ * dans les dimensions des éléments.
+ * Cela facilite la mise en page du dashboard.
+ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
