@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
-// Composant principal de l'application
+
 @Component({
-  imports: [RouterOutlet],
   selector: 'app-root',
+  imports: [RouterOutlet],
   styleUrl: './app.css',
   templateUrl: './app.html',
+  styleUrl: './app.css'
 })
 export class App {}

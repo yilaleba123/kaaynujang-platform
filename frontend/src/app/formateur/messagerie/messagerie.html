@@ -1,0 +1,68 @@
+<h1 class="page-title">Messagerie</h1>
+
+<div class="mt-8 grid h-[calc(100vh-18rem)] min-h-[24rem] overflow-hidden rounded-2xl border border-slate-200 md:grid-cols-[20rem_1fr]">
+  <!-- Conversations -->
+  <ul class="overflow-y-auto border-r border-slate-200">
+    @if (conversationsError()) {
+      <li class="p-5 text-sm text-red-700" role="alert">
+        Impossible de charger les conversations.
+        <button type="button" class="mt-2 font-semibold underline" (click)="loadConversations()">Réessayer</button>
+      </li>
+    } @else if (conversations(); as list) {
+      @for (c of list; track c.id) {
+        <li>
+          <button type="button" (click)="open(c)" class="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-slate-50"
+                  [class.bg-slate-100]="current()?.id === c.id">
+            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-navy text-sm font-bold text-white">{{ c.participantName.charAt(0) }}</span>
+            <span class="min-w-0 flex-1">
+              <span class="block truncate font-semibold">{{ c.participantName }}</span>
+              <span class="block truncate text-sm text-slate-500">{{ c.lastMessage }}</span>
+            </span>
+            @if (c.unreadCount) { <span class="rounded-full bg-brand px-2 py-0.5 text-xs font-bold text-white">{{ c.unreadCount }}</span> }
+          </button>
+        </li>
+      } @empty {
+        <li class="p-6 text-center text-slate-500">Aucune conversation.</li>
+      }
+    } @else {
+      <li class="p-6 text-center text-slate-400">Chargement…</li>
+    }
+  </ul>
+
+  <!-- Thread -->
+  <section class="flex min-h-0 flex-col">
+    @if (current(); as c) {
+      <header class="border-b border-slate-200 px-6 py-4 font-semibold">{{ c.participantName }}</header>
+      <div class="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-6">
+        @if (messages(); as list) {
+          @for (m of list; track m.id) {
+            <div class="flex" [class.justify-end]="m.fromMe">
+              <div class="max-w-[75%] rounded-2xl px-4 py-2" [class]="m.fromMe ? 'bg-brand text-white' : 'bg-white border border-slate-200'">
+                <p class="whitespace-pre-wrap">{{ m.content }}</p>
+                <p class="mt-1 text-xs opacity-70">{{ m.sentAt | date: 'dd MMM, HH:mm' }}</p>
+              </div>
+            </div>
+          }
+        } @else if (messagesError()) {
+          <div class="m-auto text-center text-sm text-red-700" role="alert">
+            <p>Impossible de charger les messages.</p>
+            <button type="button" class="mt-2 font-semibold underline" (click)="loadMessages()">Réessayer</button>
+          </div>
+        } @else {
+          <p class="text-center text-slate-400">Chargement…</p>
+        }
+      </div>
+      <form class="flex gap-3 border-t border-slate-200 p-4" (submit)="$event.preventDefault(); send()">
+        <input name="draft" [ngModel]="draft()" (ngModelChange)="draft.set($event)" placeholder="Écrire un message…" class="field" />
+        <button type="submit" class="btn-primary" [disabled]="sending() || !draft().trim()" aria-label="Envoyer"><app-icon name="send" /></button>
+      </form>
+      @if (sendError()) {
+        <p class="border-t border-red-100 bg-red-50 px-4 py-2 text-sm text-red-700" role="alert">
+          Le message n'a pas pu être envoyé. Réessayez.
+        </p>
+      }
+    } @else {
+      <p class="m-auto text-slate-400">Sélectionnez une conversation.</p>
+    }
+  </section>
+</div>

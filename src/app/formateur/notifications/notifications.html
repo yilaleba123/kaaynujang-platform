@@ -1,0 +1,23 @@
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <h1 class="page-title">Notifications</h1>
+  @if (notifs.unread() > 0) {
+    <button type="button" (click)="notifs.markAllRead()" class="btn-outline">Tout marquer comme lu ({{ notifs.unread() }})</button>
+  }
+</div>
+
+<ul class="mt-8 divide-y divide-slate-200 rounded-2xl border border-slate-200">
+  @for (n of notifs.items(); track n.id) {
+    <li>
+      <button type="button" (click)="open(n)" class="flex w-full items-start gap-4 px-6 py-4 text-left hover:bg-slate-50" [class.bg-blue-50]="!n.read">
+        <span class="mt-2 h-2.5 w-2.5 shrink-0 rounded-full" [class]="n.read ? 'bg-slate-300' : 'bg-brand'"></span>
+        <span class="min-w-0 flex-1">
+          <span class="block font-semibold">{{ n.title }}</span>
+          <span class="block text-slate-600">{{ n.message }}</span>
+        </span>
+        <span class="shrink-0 text-sm text-slate-400">{{ n.createdAt | date: 'dd MMM y, HH:mm' }}</span>
+      </button>
+    </li>
+  } @empty {
+    <li class="px-6 py-10 text-center text-slate-500">{{ notifs.loaded() ? 'Aucune notification.' : 'Chargement…' }}</li>
+  }
+</ul>

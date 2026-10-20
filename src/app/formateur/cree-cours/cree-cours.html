@@ -1,0 +1,83 @@
+<h1 class="page-title">{{ courseId ? 'Modifier le cours' : 'Créer un cours' }}</h1>
+
+@if (loading()) {
+  <p class="mt-8 text-slate-400">Chargement…</p>
+} @else {
+<form [formGroup]="form" class="mt-8 max-w-4xl space-y-10" (ngSubmit)="submit('published')">
+  <!-- Informations -->
+  <section class="space-y-6 rounded-2xl border border-slate-200 p-6">
+    <h2 class="text-xl font-bold">Informations générales</h2>
+    <div>
+      <label for="title" class="mb-2 block font-medium">Titre</label>
+      <input id="title" formControlName="title" class="field" />
+      @if (form.controls.title.touched && form.controls.title.invalid) { <p class="err">Un titre d'au moins 3 caractères est requis.</p> }
+    </div>
+    <div class="grid gap-6 sm:grid-cols-2">
+      <div>
+        <label for="cat" class="mb-2 block font-medium">Catégorie</label>
+        <select id="cat" formControlName="categoryId" class="field">
+          <option value="" disabled>Choisir…</option>
+          @for (c of categories(); track c.id) { <option [value]="c.id">{{ c.name }}</option> }
+        </select>
+        @if (form.controls.categoryId.touched && form.controls.categoryId.invalid) { <p class="err">Choisissez une catégorie.</p> }
+      </div>
+      <div>
+        <label for="level" class="mb-2 block font-medium">Niveau</label>
+        <select id="level" formControlName="level" class="field">
+          @for (l of levels; track l.value) { <option [value]="l.value">{{ l.label }}</option> }
+        </select>
+      </div>
+    </div>
+    <div>
+      <label for="desc" class="mb-2 block font-medium">Description</label>
+      <textarea id="desc" rows="5" formControlName="description" class="field"></textarea>
+      @if (form.controls.description.touched && form.controls.description.invalid) { <p class="err">La description est requise.</p> }
+    </div>
+  </section>
+
+  <!-- Programme -->
+  <section class="space-y-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-bold">Programme</h2>
+      <button type="button" class="btn-outline !py-2" (click)="addModule()"><app-icon name="plus" [size]="18" /> Ajouter un module</button>
+    </div>
+
+    <div formArrayName="modules" class="space-y-6">
+      @for (m of form.controls.modules.controls; track m; let mi = $index) {
+        <div [formGroupName]="mi" class="rounded-2xl border border-slate-200 bg-slate-50/50 p-6">
+          <div class="flex items-center gap-3">
+            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-navy text-sm font-bold text-white">{{ mi + 1 }}</span>
+            <input formControlName="title" placeholder="Titre du module" class="field" />
+            <button type="button" (click)="removeModule(mi)" [disabled]="form.controls.modules.length === 1" aria-label="Supprimer le module"
+                    class="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-30"><app-icon name="trash" /></button>
+          </div>
+          @if (m.controls.title.touched && m.controls.title.invalid) { <p class="err">Le titre du module est requis.</p> }
+
+          <div formArrayName="lessons" class="mt-4 space-y-3 pl-12">
+            @for (l of m.controls.lessons.controls; track l; let li = $index) {
+              <div [formGroupName]="li" class="grid gap-3 rounded-xl border border-slate-200 bg-white p-3 md:grid-cols-[1fr_9rem_1fr_auto]">
+                <input formControlName="title" placeholder="Titre de la leçon" class="field !py-2" />
+                <select formControlName="type" class="field !py-2">
+                  @for (t of lessonTypes; track t.value) { <option [value]="t.value">{{ t.label }}</option> }
+                </select>
+                <input formControlName="contentUrl" placeholder="Lien du contenu (URL)" class="field !py-2" />
+                <button type="button" (click)="removeLesson(mi, li)" [disabled]="m.controls.lessons.length === 1" aria-label="Supprimer la leçon"
+                        class="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-30"><app-icon name="trash" [size]="18" /></button>
+              </div>
+            }
+            <button type="button" (click)="addLesson(mi)" class="text-sm font-medium text-navy hover:underline">+ Ajouter une leçon</button>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  @if (error()) { <p class="rounded-lg bg-red-50 p-3 text-red-700">{{ error() }}</p> }
+
+  <div class="flex flex-wrap gap-3">
+    <button type="submit" [disabled]="saving()" class="btn-primary">Publier</button>
+    <button type="button" [disabled]="saving()" (click)="submit('draft')" class="btn-outline">Enregistrer en brouillon</button>
+    <a routerLink="/formateur/mes-cours" class="btn-outline">Annuler</a>
+  </div>
+</form>
+}
