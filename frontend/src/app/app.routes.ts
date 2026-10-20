@@ -14,8 +14,12 @@ import { Notifications } from './apprenant/notifications/notifications';
 import { Profil } from './apprenant/profil/profil';
 
 
+import { LoginComponent } from './components/login/login';
+
+
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'formateur' },
+  { path: 'login', component: LoginComponent },
   { path: 'connexion', title: 'Connexion', loadComponent: () => import('./auth/connexion/connexion').then(m => m.Connexion) },
   { path: 'inscription', title: 'Inscription', loadComponent: () => import('./auth/inscription/inscription').then(m => m.Inscription) },
   { path: 'mot-de-passe-oublie', title: 'Mot de passe oublié', loadComponent: () => import('./auth/mot-de-passe-oublie/mot-de-passe-oublie').then(m => m.MotDePasseOublie) },
@@ -110,6 +114,4 @@ export const routes: Routes = [
     ],
   },
 ];
-
-
 
