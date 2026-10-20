@@ -450,3 +450,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Fichiers uploadés
+media/
