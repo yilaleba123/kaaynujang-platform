@@ -1,0 +1,95 @@
+<main class="lesson-page">
+
+  @if (cours(); as coursSelectionne) {
+
+    <!-- Retour au cours -->
+    <a
+      class="lesson-back-link"
+      [routerLink]="['/apprenant/cours', coursSelectionne.id]"
+      aria-label="Retour au cours"
+      title="Retour au cours"
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M19 12H5" />
+        <path d="m12 19-7-7 7-7" />
+      </svg>
+    </a>
+
+    @if (estInscrit()) {
+
+      @if (lecon(); as leconSelectionnee) {
+
+        <!-- Présentation de la leçon -->
+        <header class="lesson-header">
+          <p class="lesson-course">
+            {{ coursSelectionne.titre }}
+          </p>
+
+          <h1>{{ leconSelectionnee.titre }}</h1>
+        </header>
+
+        <!-- Contenu de la leçon -->
+        <article
+          class="lesson-content"
+          aria-label="Contenu de la leçon"
+        >
+          <p>{{ leconSelectionnee.contenu }}</p>
+        </article>
+
+      } @else {
+
+        <!-- Leçon absente du cours -->
+        <section class="lesson-not-found">
+          <h1>Leçon introuvable</h1>
+
+          <p>
+            Cette leçon n’existe pas dans ce cours.
+          </p>
+        </section>
+
+      }
+
+    } @else {
+
+      <!-- Accès réservé aux apprenants inscrits -->
+      <section class="lesson-access-denied">
+        <h1>Inscription nécessaire</h1>
+
+        <p>
+          Vous devez vous inscrire à ce cours pour accéder à cette leçon.
+        </p>
+
+        <a
+          class="lesson-course-link"
+          [routerLink]="['/apprenant/cours', coursSelectionne.id]"
+        >
+          Voir le cours
+        </a>
+      </section>
+
+    }
+
+  } @else {
+
+    <!-- Cours absent du catalogue -->
+    <section class="lesson-not-found">
+      <h1>Cours introuvable</h1>
+
+      <p>
+        Le cours demandé n’existe pas dans le catalogue.
+      </p>
+    </section>
+
+  }
+
+</main>

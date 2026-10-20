@@ -1,0 +1,20 @@
+/*
+ * Base globale de l'application KAAYNUJÀNG.
+ * Supprime les espacements extérieurs autour de la page.
+ */
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Inclut les bordures et les espacements intérieurs
+ * dans les dimensions des éléments.
+ * Cela facilite la mise en page du dashboard.
+ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
