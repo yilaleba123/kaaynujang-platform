@@ -9,6 +9,7 @@ import { routes } from './app.routes';
 
 registerLocaleData(localeFr);
 
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
@@ -18,3 +19,4 @@ export const appConfig: ApplicationConfig = {
     { provide: LOCALE_ID, useValue: 'fr' },
   ],
 };
+

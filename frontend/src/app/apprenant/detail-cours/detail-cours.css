@@ -1,0 +1,214 @@
+/* Fond et texte de la page */
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #f8fafc;
+  color: #172554;
+  font-family: Arial, sans-serif;
+}
+
+/* Contenu principal */
+.detail-cours-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+/* Flèche de retour */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 24px;
+  background: transparent;
+  color: #64748b;
+  border: none;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: #172554;
+}
+
+
+
+.back-link:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 4px;
+}
+
+/* Carte de présentation */
+.course-detail-card {
+  overflow: hidden;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgb(15 23 42 / 6%);
+}
+
+/* Photo du cours */
+.course-detail-image {
+  display: block;
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+}
+
+/* Informations du cours */
+.course-detail-content {
+  padding: 32px;
+}
+
+.course-detail-level {
+  display: inline-block;
+  padding: 6px 12px;
+  background-color: #dbeafe;
+  color: #1e40af;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.course-detail-content h1 {
+  margin: 20px 0 16px;
+  font-size: 30px;
+  line-height: 1.3;
+}
+
+.course-detail-description {
+  margin: 0 0 28px;
+  color: #64748b;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* Bouton d'inscription */
+.enroll-button {
+  padding: 13px 24px;
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.enroll-button:disabled {
+  cursor: not-allowed;
+}
+
+/* Message si le cours n'existe pas */
+.course-not-found {
+  padding: 32px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+}
+
+.course-not-found h1 {
+  margin: 0 0 12px;
+}
+
+.course-not-found p {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+/* Adaptation aux petits écrans */
+@media (max-width: 600px) {
+  .detail-cours-page {
+    padding: 24px 16px;
+  }
+
+  .course-detail-image {
+    height: 220px;
+  }
+
+  .course-detail-content {
+    padding: 24px;
+  }
+
+  .course-detail-content h1 {
+    font-size: 24px;
+  }
+
+  .enroll-button {
+    width: 100%;
+  }
+}
+/* Programme du cours */
+.course-program {
+  margin-top: 32px;
+  padding: 28px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+}
+
+.course-program h2 {
+  margin: 0 0 24px;
+  font-size: 24px;
+}
+
+/* Bloc d'un module */
+.course-module {
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.course-module + .course-module {
+  margin-top: 20px;
+}
+
+.course-module h3 {
+  margin: 0;
+  padding: 16px 20px;
+  background-color: #eff6ff;
+  color: #172554;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+/* Leçons du module */
+.module-lessons {
+  margin: 0;
+  padding: 0 20px 0 44px;
+}
+
+.module-lesson {
+  padding: 16px 0 16px 4px;
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.module-lesson + .module-lesson {
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Adaptation aux petits écrans */
+@media (max-width: 600px) {
+  .course-program {
+    padding: 20px;
+  }
+
+  .course-program h2 {
+    font-size: 21px;
+  }
+
+  .course-module h3 {
+    padding: 14px 16px;
+    font-size: 16px;
+  }
+
+  .module-lessons {
+    padding-right: 16px;
+    padding-left: 36px;
+  }
+}

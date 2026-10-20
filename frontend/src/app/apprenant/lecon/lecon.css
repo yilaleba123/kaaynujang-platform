@@ -1,0 +1,114 @@
+/* Fond et texte de la page */
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #f8fafc;
+  color: #172554;
+  font-family: Arial, sans-serif;
+}
+
+/* Zone de lecture */
+.lesson-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+/* Présentation de la leçon */
+.lesson-header {
+  margin-bottom: 24px;
+}
+
+.lesson-course {
+  margin: 0 0 12px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.lesson-header h1 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+/* Texte de la leçon */
+.lesson-content {
+  padding: 32px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgb(15 23 42 / 6%);
+}
+
+.lesson-content p {
+  margin: 0;
+  color: #334155;
+  font-size: 17px;
+  line-height: 1.8;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* Message si le cours ou la leçon est introuvable */
+.lesson-not-found {
+  padding: 28px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+}
+
+.lesson-not-found h1 {
+  margin: 0 0 12px;
+  font-size: 24px;
+}
+
+.lesson-not-found p {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+/* Adaptation aux petits écrans */
+@media (max-width: 600px) {
+  .lesson-page {
+    padding: 24px 16px;
+  }
+
+  .lesson-header h1 {
+    font-size: 24px;
+  }
+
+  .lesson-content {
+    padding: 24px;
+  }
+
+  .lesson-content p {
+    font-size: 16px;
+  }
+}
+/* Flèche de retour */
+.lesson-back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 24px;
+  background: transparent;
+  color: #64748b;
+  border: none;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.lesson-back-link:hover {
+  color: #172554;
+}
+
+
+.lesson-back-link:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 4px;
+}
