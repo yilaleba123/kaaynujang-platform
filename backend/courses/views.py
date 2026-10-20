@@ -127,3 +127,4 @@ class DocumentViewSet(CourseContentViewSet):
             visible_courses_filter(user, "cours__")
             | visible_courses_filter(user, "lecon__module__cours__")
         ).select_related("cours__instructeur", "lecon__module__cours__instructeur")
+

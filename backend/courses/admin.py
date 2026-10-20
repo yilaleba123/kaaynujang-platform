@@ -45,3 +45,4 @@ class LessonAdmin(admin.ModelAdmin):
 @admin.register(Document)
 class DocumentAdmin(admin.ModelAdmin):
     list_display = ["titre", "cours", "lecon", "fichier"]
+

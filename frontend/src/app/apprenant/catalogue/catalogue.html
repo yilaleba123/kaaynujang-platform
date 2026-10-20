@@ -1,0 +1,110 @@
+<main class="catalogue-page">
+
+  <!-- Présentation du catalogue -->
+  <section class="catalogue-header" aria-labelledby="catalogue-title">
+    <h1 id="catalogue-title">Catalogue des cours</h1>
+
+    <p>
+      Découvrez les cours disponibles et commencez votre apprentissage.
+    </p>
+  </section>
+
+  <!-- Recherche par titre -->
+<div class="catalogue-search">
+  <label for="recherche-cours">Rechercher un cours</label>
+
+  <input
+    #champRecherche
+    id="recherche-cours"
+    type="search"
+    placeholder="Ex. : marketing, intelligence..."
+    [value]="recherche()"
+    (input)="recherche.set(champRecherche.value)"
+  />
+</div>
+<!-- Filtre par niveau -->
+<div class="catalogue-filter">
+  <label for="niveau-cours">Niveau</label>
+
+  <select
+    #filtreNiveau
+    id="niveau-cours"
+    [value]="niveauSelectionne()"
+    (change)="niveauSelectionne.set(filtreNiveau.value)"
+  >
+    <option value="Tous">Tous les niveaux</option>
+    <option value="Débutant">Débutant</option>
+    <option value="Intermédiaire">Intermédiaire</option>
+    <option value="Avancé">Avancé</option>
+  </select>
+</div>
+
+  <!-- Liste des cours disponibles -->
+  <section class="catalogue-grid" aria-label="Cours disponibles">
+    @for (cours of coursFiltres(); track cours.id) {
+      <article class="catalogue-card">
+
+        <!-- Illustration provisoire -->
+        <div class="catalogue-illustration">
+          <!-- Photo du cours -->
+         <img
+          class="catalogue-image"
+          [src]="cours.image"
+          [alt]="cours.titre"
+          />
+
+
+          <!-- Niveau du cours -->
+          <span
+            class="catalogue-level"
+            [class.level-beginner]="cours.niveau === 'Débutant'"
+            [class.level-intermediate]="cours.niveau === 'Intermédiaire'"
+            [class.level-advanced]="cours.niveau === 'Avancé'"
+          >
+            {{ cours.niveau }}
+          </span>
+        </div>
+
+        <!-- Informations du cours -->
+        <div class="catalogue-card-content">
+          <h2>{{ cours.titre }}</h2>
+
+          <p>{{ cours.description }}</p>
+
+          <!-- Accès au détail du cours -->
+          <button
+            class="catalogue-button"
+            type="button"
+            [routerLink]="['/apprenant/cours', cours.id]"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 5v15" />
+              <path
+                d="M12 5C9 3 5 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Z"
+              />
+            </svg>
+
+            Accéder au cours
+          </button>
+        </div>
+
+      </article>
+    } @empty {
+      <p class="catalogue-empty">
+        Aucun cours ne correspond à votre recherche.
+      </p>
+    }
+  </section>
+
+</main>
+
