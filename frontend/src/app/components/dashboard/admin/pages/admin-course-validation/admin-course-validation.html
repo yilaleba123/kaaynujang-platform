@@ -1,1 +1,208 @@
-<p>admin-course-validation works!</p>
+<div class="validation-page">
+  <!-- En-tête -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Validation des Cours</h1>
+      <p class="page-subtitle">
+        File d'attente des demandes de publication soumises par les enseignants.
+      </p>
+    </div>
+  </div>
+
+  <!-- Barre de recherche -->
+  <div class="filter-bar">
+    <div class="search-box">
+      <svg
+        class="search-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="applySearch()"
+        placeholder="Rechercher une demande par cours, formateur..."
+        aria-label="Filtrer les cours en attente"
+      />
+    </div>
+
+    <div class="pending-counter">
+      <span
+        >Demandes en attente : <strong>{{ pendingCourses.length }}</strong></span
+      >
+    </div>
+  </div>
+
+  <!-- Liste des demandes de validation -->
+  <div class="table-card">
+    <div *ngIf="isLoading" class="loading-state"><p>Chargement des demandes...</p></div>
+    <div *ngIf="!isLoading && filteredCourses.length === 0" class="empty-state">
+      <p>Aucun cours en attente de validation pour le moment.</p>
+    </div>
+
+    <div *ngIf="!isLoading && filteredCourses.length > 0" class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Intitulé du cours</th>
+            <th>Formateur</th>
+            <th>Domaine / Niveau</th>
+            <th>Date de soumission</th>
+            <th>Fichier Pédagogique</th>
+            <th class="text-right">Décision</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let course of filteredCourses">
+            <td>
+              <div class="course-cell clickable" (click)="openReviewModal(course)">
+                <div class="course-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                  </svg>
+                </div>
+                <div>
+                  <p class="title">{{ course.titre }}</p>
+                  <p class="sub">Consulter la fiche complète</p>
+                </div>
+              </div>
+            </td>
+            <td>
+              <p class="teacher-name">{{ course.enseignant_name || 'Non renseigné' }}</p>
+            </td>
+            <td>
+              <p class="cat-title">{{ getCategoryName(course) }}</p>
+              <p class="sub" *ngIf="course.niveau">{{ course.niveau }}</p>
+            </td>
+            <td>
+              <span class="date-tag">{{ course.created_at || 'Récemment' }}</span>
+            </td>
+            <td>
+              <button
+                *ngIf="course.support_cours"
+                type="button"
+                class="btn-doc download"
+                (click)="downloadSupport(course.support_cours, course.titre)"
+              >
+                Télécharger
+              </button>
+              <span *ngIf="!course.support_cours" class="text-muted-sm">Non fourni</span>
+            </td>
+            <td class="text-right">
+              <div class="action-buttons-group">
+                <button
+                  type="button"
+                  class="btn-action view"
+                  (click)="openReviewModal(course)"
+                  title="Examiner le dossier"
+                >
+                  Examiner
+                </button>
+                <button
+                  type="button"
+                  class="btn-action validate"
+                  (click)="approveCourse(course)"
+                  title="Approuver"
+                >
+                  Approuver
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modale d'examen et modération de cours -->
+<div class="modal-overlay" *ngIf="showReviewModal" (click)="closeReviewModal()">
+  <div class="modal-content detail-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Examen de conformité : {{ selectedCourse?.titre }}</h2>
+      <button type="button" class="btn-close" (click)="closeReviewModal()">✕</button>
+    </div>
+
+    <div class="modal-body grid-body">
+      <div class="info-group full-width">
+        <h3>Programme & Objectifs du cours</h3>
+        <p class="description-text">
+          {{ selectedCourse?.description || 'Aucune description rédigée.' }}
+        </p>
+      </div>
+
+      <div class="info-group">
+        <h3>Auteur & Catégorisation</h3>
+        <p><strong>Formateur :</strong> {{ selectedCourse?.enseignant_name || 'Non renseigné' }}</p>
+        <p>
+          <strong>Domaine :</strong> {{ selectedCourse ? getCategoryName(selectedCourse) : '' }}
+        </p>
+        <p><strong>Niveau requis :</strong> {{ selectedCourse?.niveau || 'Non spécifié' }}</p>
+      </div>
+
+      <div class="info-group">
+        <h3>Document de formation</h3>
+        <div class="doc-row" *ngIf="selectedCourse?.support_cours">
+          <span>Support de cours téléversé</span>
+          <button
+            type="button"
+            class="btn-doc download"
+            (click)="downloadSupport(selectedCourse?.support_cours, selectedCourse?.titre)"
+          >
+            Télécharger le fichier
+          </button>
+        </div>
+        <p *ngIf="!selectedCourse?.support_cours" class="text-muted-sm">
+          Aucun support joint par le formateur.
+        </p>
+      </div>
+
+      <!-- Zone de formulaire si l'admin clique sur Rejeter -->
+      <div class="info-group full-width reject-form" *ngIf="showRejectInput">
+        <h3>Motif du refus</h3>
+        <textarea
+          [(ngModel)]="rejectionReason"
+          rows="3"
+          placeholder="Expliquez à l'enseignant les ajustements nécessaires pour que son cours soit validé..."
+        >
+        </textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <ng-container *ngIf="!showRejectInput">
+        <button type="button" class="btn-action reject-text" (click)="showRejectInput = true">
+          Refuser le cours
+        </button>
+        <button
+          type="button"
+          class="btn-action validate-text"
+          (click)="approveCourse(selectedCourse!)"
+        >
+          Valider et Publier
+        </button>
+      </ng-container>
+
+      <ng-container *ngIf="showRejectInput">
+        <button type="button" class="btn-secondary" (click)="showRejectInput = false">
+          Annuler
+        </button>
+        <button
+          type="button"
+          class="btn-action confirm-reject"
+          (click)="confirmRejection(selectedCourse!)"
+        >
+          Confirmer le rejet
+        </button>
+      </ng-container>
+    </div>
+  </div>
+</div>

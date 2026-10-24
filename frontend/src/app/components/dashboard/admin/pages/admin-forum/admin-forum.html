@@ -1,1 +1,223 @@
-<p>admin-forum works!</p>
+<div class="forum-page">
+  <!-- En-tête -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Forum & Modération</h1>
+      <p class="page-subtitle">
+        Traitement des signalements et modération des échanges communautaires.
+      </p>
+    </div>
+  </div>
+
+  <!-- Cartes récapitulatives -->
+  <div class="summary-cards">
+    <div class="summary-card">
+      <span class="card-label">TOTAL SIGNALEMENTS</span>
+      <span class="card-value">{{ reports.length }}</span>
+    </div>
+    <div class="summary-card pending">
+      <span class="card-label">EN ATTENTE DE TRAITEMENT</span>
+      <span class="card-value">{{ countPending }}</span>
+    </div>
+    <div class="summary-card resolved">
+      <span class="card-label">SIGNALEMENTS RÉSOLUS</span>
+      <span class="card-value">{{ countResolved }}</span>
+    </div>
+  </div>
+
+  <!-- Barre de filtres et recherche -->
+  <div class="filter-bar">
+    <div class="search-box">
+      <svg
+        class="search-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="applyFilters()"
+        placeholder="Rechercher par sujet, auteur, raison..."
+        aria-label="Rechercher un signalement"
+      />
+    </div>
+
+    <div class="filter-group">
+      <button
+        type="button"
+        class="btn-filter"
+        [class.active]="statusFilter === 'ALL'"
+        (click)="statusFilter = 'ALL'; applyFilters()"
+      >
+        Tous ({{ reports.length }})
+      </button>
+      <button
+        type="button"
+        class="btn-filter pending"
+        [class.active]="statusFilter === 'PENDING'"
+        (click)="statusFilter = 'PENDING'; applyFilters()"
+      >
+        En attente
+      </button>
+      <button
+        type="button"
+        class="btn-filter resolved"
+        [class.active]="statusFilter === 'RESOLVED'"
+        (click)="statusFilter = 'RESOLVED'; applyFilters()"
+      >
+        Résolus
+      </button>
+    </div>
+  </div>
+
+  <!-- Tableau des signalements -->
+  <div class="table-card">
+    <div *ngIf="isLoading" class="loading-state"><p>Chargement des signalements...</p></div>
+    <div *ngIf="!isLoading && filteredReports.length === 0" class="empty-state">
+      <p>Aucun signalement ne correspond à vos critères.</p>
+    </div>
+
+    <div *ngIf="!isLoading && filteredReports.length > 0" class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Sujet concerné</th>
+            <th>Auteur du message</th>
+            <th>Signalé par</th>
+            <th>Motif</th>
+            <th>Statut</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let report of filteredReports">
+            <td>
+              <div class="forum-cell clickable" (click)="openModal(report)">
+                <div class="forum-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="title">{{ report.titre_sujet }}</p>
+                  <p class="sub">Date : {{ report.created_at || 'Récemment' }}</p>
+                </div>
+              </div>
+            </td>
+            <td>
+              <p class="user-name">{{ report.auteur }}</p>
+            </td>
+            <td>
+              <p class="reporter-name">{{ report.signale_par }}</p>
+            </td>
+            <td>
+              <span class="reason-tag">{{ report.raison }}</span>
+            </td>
+            <td>
+              <span
+                class="status-badge"
+                [class.pending]="report.statut === 'EN_ATTENTE'"
+                [class.valid]="report.statut === 'RESOLU'"
+              >
+                {{ report.statut === 'EN_ATTENTE' ? 'En attente' : 'Résolu' }}
+              </span>
+            </td>
+            <td class="text-right">
+              <div class="action-buttons-group">
+                <button
+                  type="button"
+                  class="btn-action view"
+                  (click)="openModal(report)"
+                  title="Examiner le message"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </button>
+                <button
+                  *ngIf="report.statut === 'EN_ATTENTE'"
+                  type="button"
+                  class="btn-action validate"
+                  (click)="resolveReport(report)"
+                  title="Classer comme sans suite / Résolu"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="btn-action delete"
+                  (click)="deleteContent(report)"
+                  title="Supprimer le message"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path
+                      d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modale de détail du signalement -->
+<div class="modal-overlay" *ngIf="showDetailModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Examen du signalement #{{ selectedReport?.id }}</h2>
+      <button type="button" class="btn-close" (click)="closeModal()">✕</button>
+    </div>
+
+    <div class="modal-body grid-body">
+      <div class="info-group full-width">
+        <h3>Sujet de la discussion</h3>
+        <p class="subject-title">{{ selectedReport?.titre_sujet }}</p>
+      </div>
+
+      <div class="info-group full-width content-box">
+        <h3>Contenu du message signalé</h3>
+        <p class="message-content">"{{ selectedReport?.contenu }}"</p>
+      </div>
+
+      <div class="info-group">
+        <h3>Informations Auteur</h3>
+        <p><strong>Auteur du message :</strong> {{ selectedReport?.auteur }}</p>
+        <p><strong>Signalé par :</strong> {{ selectedReport?.signale_par }}</p>
+      </div>
+
+      <div class="info-group">
+        <h3>Détails du Signalement</h3>
+        <p><strong>Motif de signalement :</strong> {{ selectedReport?.raison }}</p>
+        <p><strong>Date d'émission :</strong> {{ selectedReport?.created_at || 'Récemment' }}</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button
+        *ngIf="selectedReport?.statut === 'EN_ATTENTE'"
+        type="button"
+        class="btn-action validate-text"
+        (click)="resolveReport(selectedReport!)"
+      >
+        Ignorer & Classer sans suite
+      </button>
+      <button type="button" class="btn-action delete-text" (click)="deleteContent(selectedReport!)">
+        Supprimer le message
+      </button>
+      <button type="button" class="btn-secondary" (click)="closeModal()">Fermer</button>
+    </div>
+  </div>
+</div>

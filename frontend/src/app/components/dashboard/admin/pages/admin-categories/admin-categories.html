@@ -1,1 +1,172 @@
-<p>admin-categories works!</p>
+<div class="categories-page">
+  <!-- En-tête -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Gestion des Catégories</h1>
+      <p class="page-subtitle">
+        Organisez l'arborescence et les domaines d'apprentissage de la plateforme.
+      </p>
+    </div>
+    <button type="button" class="btn-primary" (click)="openCreateModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Nouvelle Catégorie
+    </button>
+  </div>
+
+  <!-- Cartes de synthèse -->
+  <div class="summary-cards">
+    <div class="summary-card">
+      <span class="card-label">TOTAL CATÉGORIES</span>
+      <span class="card-value">{{ categories.length }}</span>
+    </div>
+    <div class="summary-card active">
+      <span class="card-label">COURS RATTACHÉS</span>
+      <span class="card-value">{{ totalCoursesAssociated }}</span>
+    </div>
+  </div>
+
+  <!-- Barre de recherche -->
+  <div class="filter-bar">
+    <div class="search-box">
+      <svg
+        class="search-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="applySearch()"
+        placeholder="Rechercher une catégorie..."
+        aria-label="Rechercher une catégorie"
+      />
+    </div>
+  </div>
+
+  <!-- Tableau des catégories -->
+  <div class="table-card">
+    <div *ngIf="isLoading" class="loading-state"><p>Chargement des catégories...</p></div>
+    <div *ngIf="!isLoading && filteredCategories.length === 0" class="empty-state">
+      <p>Aucune catégorie ne correspond à votre recherche.</p>
+    </div>
+
+    <div *ngIf="!isLoading && filteredCategories.length > 0" class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Nom de la catégorie</th>
+            <th>Description</th>
+            <th>Cours rattachés</th>
+            <th>Date de création</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cat of filteredCategories">
+            <td>
+              <div class="cat-cell">
+                <div class="cat-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                      d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
+                    ></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="title">{{ cat.nom }}</p>
+                  <p class="sub" *ngIf="cat.slug">/{{ cat.slug }}</p>
+                </div>
+              </div>
+            </td>
+            <td>
+              <p class="desc-text">{{ cat.description || 'Aucune description rédigée.' }}</p>
+            </td>
+            <td>
+              <span class="count-badge">{{ cat.nombre_cours || 0 }} cours</span>
+            </td>
+            <td>
+              <span class="date-text">{{ cat.created_at || 'Récemment' }}</span>
+            </td>
+            <td class="text-right">
+              <div class="action-buttons-group">
+                <button
+                  type="button"
+                  class="btn-action edit"
+                  (click)="openEditModal(cat)"
+                  title="Modifier"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="btn-action delete"
+                  (click)="deleteCategory(cat)"
+                  title="Supprimer"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path
+                      d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modale de Création / Modification -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ isEditMode ? 'Modifier la catégorie' : 'Nouvelle catégorie' }}</h2>
+      <button type="button" class="btn-close" (click)="closeModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="catName">Intitulé de la catégorie *</label>
+        <input
+          id="catName"
+          type="text"
+          [(ngModel)]="formData.nom"
+          placeholder="Ex: Génie Logiciel & SIG"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="catDesc">Description</label>
+        <textarea
+          id="catDesc"
+          [(ngModel)]="formData.description"
+          rows="4"
+          placeholder="Présentation synthétique du domaine d'apprentissage..."
+        >
+        </textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" (click)="closeModal()">Annuler</button>
+      <button type="button" class="btn-primary" (click)="saveCategory()">
+        {{ isEditMode ? 'Enregistrer les modifications' : 'Créer la catégorie' }}
+      </button>
+    </div>
+  </div>
+</div>

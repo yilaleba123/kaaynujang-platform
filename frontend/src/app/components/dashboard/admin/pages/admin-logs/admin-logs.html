@@ -1,1 +1,208 @@
-<p>admin-logs works!</p>
+<div class="logs-page">
+  <!-- En-tête -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Journal d'Activité & Audit</h1>
+      <p class="page-subtitle">
+        Historique des actions d'administration, événements système et accès utilisateurs.
+      </p>
+    </div>
+  </div>
+
+  <!-- Cartes de synthèse -->
+  <div class="summary-cards">
+    <div class="summary-card">
+      <span class="card-label">TOTAL ÉVÉNEMENTS</span>
+      <span class="card-value">{{ logs.length }}</span>
+    </div>
+    <div class="summary-card moderation">
+      <span class="card-label">ACTIONS DE MODÉRATION</span>
+      <span class="card-value">{{
+        logs.filter((l) => l.type_action === 'MODERATION').length
+      }}</span>
+    </div>
+    <div class="summary-card users">
+      <span class="card-label">GESTION UTILISATEURS</span>
+      <span class="card-value">{{
+        logs.filter((l) => l.type_action === 'GESTION_USER').length
+      }}</span>
+    </div>
+    <div class="summary-card logins">
+      <span class="card-label">ACCÈS & CONNEXIONS</span>
+      <span class="card-value">{{ logs.filter((l) => l.type_action === 'CONNEXION').length }}</span>
+    </div>
+  </div>
+
+  <!-- Barre de recherche et de filtres -->
+  <div class="filter-bar">
+    <div class="search-box">
+      <svg
+        class="search-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="applyFilters()"
+        placeholder="Filtrer par utilisateur, action, IP..."
+        aria-label="Rechercher dans le journal"
+      />
+    </div>
+
+    <div class="filter-group">
+      <button
+        type="button"
+        class="btn-filter"
+        [class.active]="typeFilter === 'ALL'"
+        (click)="typeFilter = 'ALL'; applyFilters()"
+      >
+        Tous
+      </button>
+      <button
+        type="button"
+        class="btn-filter"
+        [class.active]="typeFilter === 'MODERATION'"
+        (click)="typeFilter = 'MODERATION'; applyFilters()"
+      >
+        Modération
+      </button>
+      <button
+        type="button"
+        class="btn-filter"
+        [class.active]="typeFilter === 'GESTION_USER'"
+        (click)="typeFilter = 'GESTION_USER'; applyFilters()"
+      >
+        Utilisateurs
+      </button>
+      <button
+        type="button"
+        class="btn-filter"
+        [class.active]="typeFilter === 'CONNEXION'"
+        (click)="typeFilter = 'CONNEXION'; applyFilters()"
+      >
+        Connexions
+      </button>
+      <button
+        type="button"
+        class="btn-filter"
+        [class.active]="typeFilter === 'SYSTEME'"
+        (click)="typeFilter = 'SYSTEME'; applyFilters()"
+      >
+        Système
+      </button>
+    </div>
+  </div>
+
+  <!-- Tableau du Journal d'Audit -->
+  <div class="table-card">
+    <div *ngIf="isLoading" class="loading-state"><p>Chargement du journal d'activité...</p></div>
+    <div *ngIf="!isLoading && filteredLogs.length === 0" class="empty-state">
+      <p>Aucun événement ne correspond aux filtres sélectionnés.</p>
+    </div>
+
+    <div *ngIf="!isLoading && filteredLogs.length > 0" class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Horodatage</th>
+            <th>Utilisateur</th>
+            <th>Catégorie</th>
+            <th>Action effectuée</th>
+            <th>Adresse IP</th>
+            <th class="text-right">Détails</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let log of filteredLogs">
+            <td>
+              <span class="timestamp-text">{{ log.created_at }}</span>
+            </td>
+            <td>
+              <p class="user-email">{{ log.user }}</p>
+            </td>
+            <td>
+              <span
+                class="badge-type"
+                [class.mod]="log.type_action === 'MODERATION'"
+                [class.usr]="log.type_action === 'GESTION_USER'"
+                [class.log]="log.type_action === 'CONNEXION'"
+                [class.sys]="log.type_action === 'SYSTEME'"
+              >
+                <ng-container [ngSwitch]="log.type_action">
+                  <span *ngSwitchCase="'MODERATION'">Modération</span>
+                  <span *ngSwitchCase="'GESTION_USER'">Utilisateur</span>
+                  <span *ngSwitchCase="'CONNEXION'">Connexion</span>
+                  <span *ngSwitchCase="'SYSTEME'">Système</span>
+                  <span *ngSwitchDefault>Général</span>
+                </ng-container>
+              </span>
+            </td>
+            <td>
+              <p class="action-desc">{{ log.action }}</p>
+            </td>
+            <td>
+              <code class="ip-code">{{ log.ip_address }}</code>
+            </td>
+            <td class="text-right">
+              <button
+                type="button"
+                class="btn-action view"
+                (click)="openDetailModal(log)"
+                title="Inspecter l'événement"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modale de détail d'un événement -->
+<div class="modal-overlay" *ngIf="showDetailModal" (click)="closeDetailModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Détails du journal #{{ selectedLog?.id }}</h2>
+      <button type="button" class="btn-close" (click)="closeDetailModal()">✕</button>
+    </div>
+
+    <div class="modal-body grid-body">
+      <div class="info-group full-width">
+        <h3>Action consignée</h3>
+        <p class="action-title">{{ selectedLog?.action }}</p>
+      </div>
+
+      <div class="info-group">
+        <h3>Acteur & Réseau</h3>
+        <p><strong>Compte :</strong> {{ selectedLog?.user }}</p>
+        <p><strong>Adresse IP :</strong> {{ selectedLog?.ip_address }}</p>
+      </div>
+
+      <div class="info-group">
+        <h3>Contexte temporel</h3>
+        <p><strong>Date & Heure :</strong> {{ selectedLog?.created_at }}</p>
+        <p><strong>Catégorie :</strong> {{ selectedLog?.type_action }}</p>
+      </div>
+
+      <div class="info-group full-width" *ngIf="selectedLog?.details">
+        <h3>Données complémentaires / Payload</h3>
+        <p class="details-text">{{ selectedLog?.details }}</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" (click)="closeDetailModal()">Fermer</button>
+    </div>
+  </div>
+</div>

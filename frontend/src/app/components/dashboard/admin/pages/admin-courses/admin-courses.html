@@ -1,1 +1,316 @@
-<p>admin-courses works!</p>
+<div class="courses-page">
+  <!-- En-tête -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Gestion des Cours</h1>
+      <p class="page-subtitle">
+        Supervision globale du catalogue de formation, validation des contenus et modération.
+      </p>
+    </div>
+  </div>
+
+  <!-- Cartes récapitulatives -->
+  <div class="summary-cards">
+    <div class="summary-card">
+      <span class="card-label">TOTAL COURS</span>
+      <span class="card-value">{{ courses.length }}</span>
+    </div>
+    <div class="summary-card published">
+      <span class="card-label">PUBLIÉS</span>
+      <span class="card-value">{{ countPublished }}</span>
+    </div>
+    <div class="summary-card pending">
+      <span class="card-label">EN ATTENTE DE VALIDATION</span>
+      <span class="card-value">{{ countPending }}</span>
+    </div>
+    <div class="summary-card drafts">
+      <span class="card-label">BROUILLONS</span>
+      <span class="card-value">{{ countDrafts }}</span>
+    </div>
+  </div>
+
+  <!-- Filtres et Recherche -->
+  <div class="filter-bar">
+    <div class="search-box">
+      <svg
+        class="search-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="applyFilters()"
+        placeholder="Rechercher par titre, enseignant, catégorie..."
+        aria-label="Rechercher un cours"
+      />
+    </div>
+
+    <div class="select-box" *ngIf="categoriesList.length > 0">
+      <select
+        [(ngModel)]="categoryFilter"
+        (change)="applyFilters()"
+        aria-label="Filtrer par catégorie"
+      >
+        <option value="ALL">Toutes les catégories</option>
+        <option *ngFor="let cat of categoriesList" [value]="cat">{{ cat }}</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <button
+        type="button"
+        class="btn-filter"
+        [class.active]="statusFilter === 'ALL'"
+        (click)="statusFilter = 'ALL'; applyFilters()"
+      >
+        Tous ({{ courses.length }})
+      </button>
+      <button
+        type="button"
+        class="btn-filter valid"
+        [class.active]="statusFilter === 'PUBLISHED'"
+        (click)="statusFilter = 'PUBLISHED'; applyFilters()"
+      >
+        Publiés
+      </button>
+      <button
+        type="button"
+        class="btn-filter pending"
+        [class.active]="statusFilter === 'PENDING'"
+        (click)="statusFilter = 'PENDING'; applyFilters()"
+      >
+        En attente
+      </button>
+      <button
+        type="button"
+        class="btn-filter rejected"
+        [class.active]="statusFilter === 'REJECTED'"
+        (click)="statusFilter = 'REJECTED'; applyFilters()"
+      >
+        Rejetés
+      </button>
+    </div>
+  </div>
+
+  <!-- Tableau principal (Sans la colonne Tarif) -->
+  <div class="table-card">
+    <div *ngIf="isLoading" class="loading-state"><p>Chargement des cours...</p></div>
+    <div *ngIf="!isLoading && filteredCourses.length === 0" class="empty-state">
+      <p>Aucun cours ne correspond aux critères.</p>
+    </div>
+
+    <div *ngIf="!isLoading && filteredCourses.length > 0" class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Intitulé du Cours</th>
+            <th>Formateur</th>
+            <th>Catégorie / Niveau</th>
+            <th>Inscriptions & Évaluation</th>
+            <th>Support</th>
+            <th>Statut</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let course of filteredCourses">
+            <td>
+              <div class="course-cell clickable" (click)="openDetailModal(course)">
+                <div class="course-avatar">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="title">{{ course.titre }}</p>
+                  <p class="date">Créé le {{ course.created_at || 'Récemment' }}</p>
+                </div>
+              </div>
+            </td>
+            <td>
+              <p class="teacher-name">{{ course.enseignant_name || 'Non renseigné' }}</p>
+            </td>
+            <td>
+              <p class="cat-title">{{ getCategoryName(course) }}</p>
+              <p class="sub" *ngIf="course.niveau">{{ course.niveau }}</p>
+            </td>
+            <td>
+              <p class="stats-text">{{ course.nombre_eleves || 0 }} apprenant(s)</p>
+              <p class="sub" *ngIf="course.note_moyenne">Note: {{ course.note_moyenne }} / 5</p>
+            </td>
+            <td>
+              <button
+                *ngIf="course.support_cours"
+                type="button"
+                class="btn-doc download"
+                (click)="downloadCourseFile(course.support_cours, course.titre)"
+                title="Télécharger le cours"
+              >
+                Télécharger
+              </button>
+
+              <span *ngIf="!course.support_cours" class="text-muted-sm">Aucun fichier</span>
+            </td>
+            <td>
+              <span
+                class="status-badge"
+                [class.valid]="course.statut === 'PUBLIE'"
+                [class.pending]="course.statut === 'EN_ATTENTE'"
+                [class.draft]="course.statut === 'BROUILLON'"
+                [class.rejected]="course.statut === 'REJETE'"
+              >
+                <ng-container [ngSwitch]="course.statut">
+                  <span *ngSwitchCase="'PUBLIE'">Publié</span>
+                  <span *ngSwitchCase="'EN_ATTENTE'">En attente</span>
+                  <span *ngSwitchCase="'BROUILLON'">Brouillon</span>
+                  <span *ngSwitchCase="'REJETE'">Rejeté</span>
+                </ng-container>
+              </span>
+            </td>
+            <td class="text-right">
+              <div class="action-buttons-group">
+                <button
+                  type="button"
+                  class="btn-action view"
+                  (click)="openDetailModal(course)"
+                  title="Consulter la fiche"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </button>
+                <button
+                  *ngIf="course.statut !== 'PUBLIE'"
+                  type="button"
+                  class="btn-action validate"
+                  (click)="updateStatus(course, 'PUBLIE')"
+                  title="Publier le cours"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </button>
+                <button
+                  *ngIf="course.statut === 'PUBLIE'"
+                  type="button"
+                  class="btn-action unpublish"
+                  (click)="updateStatus(course, 'BROUILLON')"
+                  title="Mettre en brouillon"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="6" y="4" width="4" height="16"></rect>
+                    <rect x="14" y="4" width="4" height="16"></rect>
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="btn-action delete"
+                  (click)="deleteCourse(course)"
+                  title="Supprimer"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path
+                      d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modale de Fiche détaillée du Cours -->
+<div class="modal-overlay" *ngIf="showDetailModal" (click)="closeDetailModal()">
+  <div class="modal-content detail-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Dossier de cours : {{ selectedCourse?.titre }}</h2>
+      <button type="button" class="btn-close" (click)="closeDetailModal()">✕</button>
+    </div>
+
+    <div class="modal-body grid-body">
+      <div class="info-group full-width">
+        <h3>Description du programme</h3>
+        <p class="description-text">
+          {{ selectedCourse?.description || 'Aucune description rédigée par le formateur.' }}
+        </p>
+      </div>
+
+      <div class="info-group">
+        <h3>Informations générales</h3>
+        <p><strong>Formateur :</strong> {{ selectedCourse?.enseignant_name || 'Non renseigné' }}</p>
+        <p>
+          <strong>Domaine / Catégorie :</strong>
+          {{ selectedCourse ? getCategoryName(selectedCourse) : '' }}
+        </p>
+        <p><strong>Niveau requis :</strong> {{ selectedCourse?.niveau || 'Non spécifié' }}</p>
+        <p><strong>Date de soumission :</strong> {{ selectedCourse?.created_at || 'Récemment' }}</p>
+      </div>
+
+      <div class="info-group">
+        <h3>Modalités & Performance</h3>
+        <p><strong>Accès :</strong> Gratuit</p>
+        <p><strong>Nombre d'inscrits :</strong> {{ selectedCourse?.nombre_eleves || 0 }}</p>
+        <p>
+          <strong>Évaluation moyenne :</strong>
+          {{ selectedCourse?.note_moyenne || 'Aucune évaluation' }} / 5
+        </p>
+        <p><strong>État de publication :</strong> {{ selectedCourse?.statut }}</p>
+      </div>
+
+      <!-- Fichier à télécharger dans la modale -->
+      <div class="info-group full-width">
+        <h3>Support de cours joint</h3>
+        <div class="doc-download-card">
+          <div *ngIf="selectedCourse?.support_cours" class="doc-row">
+            <span>Document de formation complet</span>
+            <button
+              type="button"
+              class="btn-primary"
+              (click)="downloadCourseFile(selectedCourse?.support_cours, selectedCourse?.titre)"
+            >
+              Télécharger le fichier
+            </button>
+          </div>
+          <div *ngIf="!selectedCourse?.support_cours">
+            <span class="text-muted-sm"
+              >Aucun fichier support n'a été téléversé par l'enseignant pour ce cours.</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button
+        *ngIf="selectedCourse?.statut !== 'PUBLIE'"
+        type="button"
+        class="btn-action validate-text"
+        (click)="updateStatus(selectedCourse!, 'PUBLIE'); closeDetailModal()"
+      >
+        Approuver & Publier
+      </button>
+      <button
+        *ngIf="selectedCourse?.statut === 'EN_ATTENTE'"
+        type="button"
+        class="btn-action reject-text"
+        (click)="updateStatus(selectedCourse!, 'REJETE'); closeDetailModal()"
+      >
+        Rejeter la demande
+      </button>
+      <button type="button" class="btn-secondary" (click)="closeDetailModal()">Fermer</button>
+    </div>
+  </div>
+</div>

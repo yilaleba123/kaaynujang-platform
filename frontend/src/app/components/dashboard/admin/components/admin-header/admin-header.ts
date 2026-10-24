@@ -6,11 +6,15 @@ import {
   OnInit,
   OnDestroy,
   ChangeDetectorRef,
+  ElementRef,
+  HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { AuthService, User } from '../../../../../services/auth';
+import { NotificationService } from '../../../../../services/notification.service';
+import { AdminNotification } from '../../../../../services/admin';
 
 @Component({
   selector: 'app-admin-header',
@@ -23,15 +27,22 @@ export class AdminHeaderComponent implements OnInit, OnDestroy {
   @Output() toggleHamburger = new EventEmitter<void>();
 
   private authService = inject(AuthService);
+  private notificationService = inject(NotificationService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private elementRef = inject(ElementRef);
 
   currentUser: User | null = this.authService.getCurrentUser();
   currentPageTitle = 'Accueil';
   avatarOpen = false;
-  notifCount = 3;
+  notifOpen = false;
+
+  notifications: AdminNotification[] = [];
+  notifCount = 0;
 
   private routerSub!: Subscription;
+  private notifSub!: Subscription;
+  private unreadSub!: Subscription;
 
   private routeTitles: Record<string, string> = {
     '/dashboard/admin': 'Accueil',
@@ -54,14 +65,25 @@ export class AdminHeaderComponent implements OnInit, OnDestroy {
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
       .subscribe((e) => {
         this.updateTitle(e.urlAfterRedirects || e.url);
-        this.cdr.detectChanges(); // Force le rafraîchissement réactif du DOM
+        this.cdr.detectChanges();
       });
+
+    // Abonnements réactifs aux notifications
+    this.notifSub = this.notificationService.notifications$.subscribe((data) => {
+      this.notifications = data;
+      this.cdr.detectChanges();
+    });
+
+    this.unreadSub = this.notificationService.unreadCount$.subscribe((count) => {
+      this.notifCount = count;
+      this.cdr.detectChanges();
+    });
   }
 
   ngOnDestroy(): void {
-    if (this.routerSub) {
-      this.routerSub.unsubscribe();
-    }
+    if (this.routerSub) this.routerSub.unsubscribe();
+    if (this.notifSub) this.notifSub.unsubscribe();
+    if (this.unreadSub) this.unreadSub.unsubscribe();
   }
 
   private updateTitle(url: string): void {
@@ -86,10 +108,42 @@ export class AdminHeaderComponent implements OnInit, OnDestroy {
 
   toggleAvatar(): void {
     this.avatarOpen = !this.avatarOpen;
+    if (this.avatarOpen) this.notifOpen = false;
+  }
+
+  toggleNotif(): void {
+    this.notifOpen = !this.notifOpen;
+    if (this.notifOpen) this.avatarOpen = false;
+  }
+
+  markAllRead(): void {
+    this.notificationService.markAllAsRead();
+  }
+
+  onNotificationClick(item: AdminNotification): void {
+    this.notificationService.markAsRead(item.id);
+    this.notifOpen = false;
+    if (item.lien) {
+      this.router.navigateByUrl(item.lien);
+    }
+  }
+
+  goToAllNotifications(): void {
+    this.notifOpen = false;
+    this.router.navigate(['/dashboard/admin/notifications']);
   }
 
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  // Ferme automatiquement les menus déroulants si on clique n'importe où ailleurs sur la page
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.avatarOpen = false;
+      this.notifOpen = false;
+    }
   }
 }

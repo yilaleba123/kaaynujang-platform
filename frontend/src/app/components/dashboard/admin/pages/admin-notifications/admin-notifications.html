@@ -1,1 +1,151 @@
-<p>admin-notifications works!</p>
+<div class="notifications-page">
+  <!-- En-tête -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Notifications System</h1>
+      <p class="page-subtitle">
+        Centre d'alertes et notifications opérationnelles du tableau de bord.
+      </p>
+    </div>
+
+    <button *ngIf="unreadCount > 0" type="button" class="btn-secondary" (click)="markAllAsRead()">
+      Tout marquer comme lu
+    </button>
+  </div>
+
+  <!-- Cartes de synthèse -->
+  <div class="summary-cards">
+    <div class="summary-card">
+      <span class="card-label">TOTAL NOTIFICATIONS</span>
+      <span class="card-value">{{ notifications.length }}</span>
+    </div>
+    <div class="summary-card unread">
+      <span class="card-label">NON LUES</span>
+      <span class="card-value">{{ unreadCount }}</span>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <button
+        type="button"
+        class="btn-filter"
+        [class.active]="filterStatus === 'ALL'"
+        (click)="filterStatus = 'ALL'; applyFilters()"
+      >
+        Toutes
+      </button>
+      <button
+        type="button"
+        class="btn-filter unread-btn"
+        [class.active]="filterStatus === 'UNREAD'"
+        (click)="filterStatus = 'UNREAD'; applyFilters()"
+      >
+        Non lues ({{ unreadCount }})
+      </button>
+      <button
+        type="button"
+        class="btn-filter"
+        [class.active]="filterStatus === 'READ'"
+        (click)="filterStatus = 'READ'; applyFilters()"
+      >
+        Déjà lues
+      </button>
+    </div>
+
+    <div class="select-box">
+      <select [(ngModel)]="filterType" (change)="applyFilters()" aria-label="Filtrer par catégorie">
+        <option value="ALL">Tous les types</option>
+        <option value="COURSE">Cours</option>
+        <option value="USER">Utilisateurs</option>
+        <option value="FORUM">Forum</option>
+        <option value="SYSTEM">Système</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Liste des notifications -->
+  <div class="list-card">
+    <div *ngIf="isLoading" class="loading-state"><p>Chargement des notifications...</p></div>
+    <div *ngIf="!isLoading && filteredNotifications.length === 0" class="empty-state">
+      <p>Aucune notification ne correspond à vos filtres.</p>
+    </div>
+
+    <div *ngIf="!isLoading && filteredNotifications.length > 0" class="notifications-list">
+      <div
+        *ngFor="let item of filteredNotifications"
+        class="notification-item"
+        [class.unread]="!item.est_lue"
+        (click)="markAsRead(item)"
+      >
+        <div class="icon-container" [class]="item.type.toLowerCase()">
+          <ng-container [ngSwitch]="item.type">
+            <svg
+              *ngSwitchCase="'COURSE'"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <svg
+              *ngSwitchCase="'USER'"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <svg
+              *ngSwitchCase="'FORUM'"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <svg
+              *ngSwitchDefault
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </ng-container>
+        </div>
+
+        <div class="content-container">
+          <div class="title-row">
+            <h3 class="item-title">{{ item.titre }}</h3>
+            <span class="timestamp">{{ item.created_at }}</span>
+          </div>
+          <p class="item-message">{{ item.message }}</p>
+        </div>
+
+        <div class="actions-container" (click)="$event.stopPropagation()">
+          <button
+            type="button"
+            class="btn-action delete"
+            (click)="deleteNotification(item)"
+            title="Supprimer la notification"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -13,6 +13,7 @@ $color-muted: #64748b;
   gap: 1rem;
   padding: 0 1rem;
   z-index: 20;
+  position: relative;
 
   .btn-hamburger {
     padding: 0.5rem;
@@ -30,32 +31,224 @@ $color-muted: #64748b;
     flex: 1;
   }
 
-  .btn-bell {
+  /* Wrapper pour la cloche et le dropdown des notifications */
+  .notif-dropdown-wrapper {
     position: relative;
-    padding: 0.5rem;
-    border-radius: 8px;
-    border: none;
-    background: transparent;
-    color: $color-muted;
-    cursor: pointer;
-    &:hover {
-      background-color: #f1f5f9;
+
+    .btn-bell {
+      position: relative;
+      padding: 0.5rem;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: $color-muted;
+      cursor: pointer;
+      &:hover {
+        background-color: #f1f5f9;
+      }
+
+      .badge-notif {
+        position: absolute;
+        top: 0.25rem;
+        right: 0.25rem;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background-color: $color-accent;
+        color: #ffffff;
+        font-size: 10px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
 
-    .badge-notif {
+    /* Le panneau déroulant des notifications (Design répliqué) */
+    .notifications-dropdown {
       position: absolute;
-      top: 0.25rem;
-      right: 0.25rem;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background-color: $color-accent;
-      color: #ffffff;
-      font-size: 10px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      top: 3.25rem;
+      right: -60px;
+      width: 380px;
+      background: #ffffff;
+      border: 1px solid $color-border;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.15);
+      z-index: 100;
+      overflow: hidden;
+
+      @media (max-width: 480px) {
+        right: -80px;
+        width: 310px;
+      }
+
+      .dropdown-header {
+        padding: 1rem 1.25rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .dropdown-title {
+          font-size: 1.1rem;
+          font-weight: 800;
+          color: $color-primary;
+          margin: 0;
+          font-family: 'Outfit', sans-serif;
+        }
+
+        .unread-subtitle {
+          font-size: 0.8rem;
+          color: $color-accent;
+          font-weight: 700;
+          margin: 0.1rem 0 0;
+        }
+
+        .btn-close-dropdown {
+          background: none;
+          border: none;
+          font-size: 1.1rem;
+          cursor: pointer;
+          color: $color-muted;
+        }
+      }
+
+      .dropdown-subheader {
+        padding: 0.6rem 1.25rem;
+        border-top: 1px solid #f1f5f9;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .recent-label {
+          font-size: 0.68rem;
+          font-weight: 800;
+          color: $color-muted;
+          letter-spacing: 0.05em;
+        }
+
+        .btn-mark-all {
+          background: none;
+          border: none;
+          color: $color-accent;
+          font-size: 0.775rem;
+          font-weight: 700;
+          cursor: pointer;
+        }
+      }
+
+      .dropdown-body {
+        max-height: 360px;
+        overflow-y: auto;
+
+        .empty-dropdown {
+          padding: 2rem;
+          text-align: center;
+          color: $color-muted;
+          font-size: 0.85rem;
+        }
+
+        .notif-item {
+          display: flex;
+          gap: 0.85rem;
+          padding: 0.9rem 1.25rem;
+          border-bottom: 1px solid #f8fafc;
+          cursor: pointer;
+          transition: background 0.15s ease;
+
+          &:hover {
+            background-color: #f8fafc;
+          }
+          &.unread {
+            background-color: rgba(16, 185, 129, 0.04);
+          }
+
+          .item-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            svg {
+              width: 18px;
+              height: 18px;
+            }
+
+            &.course {
+              background: #e0f2fe;
+              color: #0284c7;
+            }
+            &.forum {
+              background: #f3e8ff;
+              color: #9333ea;
+            }
+            &.user {
+              background: #dcfce7;
+              color: #16a34a;
+            }
+            &.system {
+              background: #fef3c7;
+              color: #d97706;
+            }
+          }
+
+          .item-content {
+            flex: 1;
+
+            .item-header-row {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+
+              .item-title {
+                font-size: 0.85rem;
+                font-weight: 700;
+                color: $color-primary;
+                margin: 0;
+              }
+
+              .dot-unread {
+                width: 8px;
+                height: 8px;
+                background-color: $color-accent;
+                border-radius: 50%;
+              }
+            }
+
+            .item-message {
+              font-size: 0.785rem;
+              color: $color-muted;
+              margin: 0.2rem 0;
+              line-height: 1.35;
+            }
+
+            .item-time {
+              font-size: 0.725rem;
+              color: #94a3b8;
+            }
+          }
+        }
+      }
+
+      .dropdown-footer {
+        padding: 0.85rem 1.25rem;
+        border-top: 1px solid $color-border;
+        background-color: #ffffff;
+
+        .btn-view-all {
+          width: 100%;
+          padding: 0.65rem;
+          background-color: $color-primary;
+          color: #ffffff;
+          border: none;
+          border-radius: 8px;
+          font-size: 0.85rem;
+          font-weight: 700;
+          cursor: pointer;
+        }
+      }
     }
   }
 
