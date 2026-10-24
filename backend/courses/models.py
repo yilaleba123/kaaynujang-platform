@@ -1,115 +1,116 @@
-from django.conf import settings
-from django.core.exceptions import ValidationError
 from django.db import models
-
+from django.conf import settings
 
 class Category(models.Model):
     nom = models.CharField(max_length=100, unique=True)
-    description = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    slug = models.SlugField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
 
     class Meta:
-        verbose_name = "catégorie"
-        verbose_name_plural = "catégories"
-        ordering = ["nom"]
+        verbose_name = "Catégorie"
+        verbose_name_plural = "Catégories"
 
     def __str__(self):
-        return self.nom
+        return str(self.nom)
 
 
 class Course(models.Model):
+    NIVEAU_CHOICES = (
+        ('DEBUTANT', 'Débutant'),
+        ('INTERMEDIAIRE', 'Intermédiaire'),
+        ('AVANCE', 'Avancé'),
+    )
+    STATUT_CHOICES = (
+        ('BROUILLON', 'Brouillon'),
+        ('PUBLIE', 'Publié'),
+        ('ARCHIVE', 'Archivé'),
+    )
+
     titre = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    categorie = models.ForeignKey(
-        Category,
-        on_delete=models.PROTECT,
-        related_name="courses",
+    slug = models.SlugField(max_length=200, unique=True)
+    description = models.TextField()
+    categorie = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='cours')
+    enseignant = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='cours_enseignes',
+        limit_choices_to={'role': 'ENSEIGNANT'}
     )
-    instructeur = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="courses_enseignes",
-    )
-    is_published = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    niveau = models.CharField(max_length=20, choices=NIVEAU_CHOICES, default='DEBUTANT')
+    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='BROUILLON')
+    image_couverture = models.ImageField(upload_to='courses/images/', null=True, blank=True)
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_mise_a_jour = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = "cours"
-        verbose_name_plural = "cours"
-        ordering = ["-created_at"]
+        verbose_name = "Cours"
+        verbose_name_plural = "Cours"
 
     def __str__(self):
-        return self.titre
+        enseignant_name = getattr(self.enseignant, 'username', '')
+        return f"{self.titre} ({enseignant_name})"
 
 
 class Module(models.Model):
+    cours = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='modules')
     titre = models.CharField(max_length=200)
-    ordre = models.PositiveIntegerField(default=0)
-    cours = models.ForeignKey(
-        Course,
-        on_delete=models.CASCADE,
-        related_name="modules",
-    )
+    description = models.TextField(blank=True, null=True)
+    ordre = models.PositiveIntegerField(default=1)
 
     class Meta:
-        verbose_name = "module"
-        verbose_name_plural = "modules"
-        ordering = ["cours", "ordre"]
+        ordering = ['ordre']
 
     def __str__(self):
-        return f"{self.cours.titre} - {self.ordre}. {self.titre}"
+        cours_titre = getattr(self.cours, 'titre', '')
+        return f"{cours_titre} - Module {self.ordre}: {self.titre}"
 
 
 class Lesson(models.Model):
-    titre = models.CharField(max_length=200)
-    contenu = models.TextField()
-    video_url = models.URLField(blank=True)
-    ordre = models.PositiveIntegerField(default=0)
-    module = models.ForeignKey(
-        Module,
-        on_delete=models.CASCADE,
-        related_name="lessons",
+    TYPE_CHOICES = (
+        ('PDF', 'Document PDF'),
+        ('VIDEO', 'Vidéo'),
+        ('EXERCICE', 'Exercice / Texte'),
     )
+
+    module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name='lecons')
+    titre = models.CharField(max_length=200)
+    type_contenu = models.CharField(max_length=20, choices=TYPE_CHOICES, default='PDF')
+    fichier = models.FileField(upload_to='courses/documents/', null=True, blank=True)
+    url_video = models.URLField(null=True, blank=True)
+    contenu_texte = models.TextField(blank=True, null=True)
+    duree_minutes = models.PositiveIntegerField(default=0, help_text="Durée estimée en minutes")
+    ordre = models.PositiveIntegerField(default=1)
 
     class Meta:
-        verbose_name = "leçon"
-        verbose_name_plural = "leçons"
-        ordering = ["module", "ordre"]
+        ordering = ['ordre']
 
     def __str__(self):
-        return f"{self.module.titre} - {self.ordre}. {self.titre}"
+        module_titre = getattr(self.module, 'titre', '')
+        return f"{module_titre} - Leçon {self.ordre}: {self.titre}"
 
 
-class Document(models.Model):
-    titre = models.CharField(max_length=200)
-    fichier = models.FileField(upload_to="documents/")
-    cours = models.ForeignKey(
-        Course,
-        on_delete=models.CASCADE,
-        related_name="documents",
-        null=True,
-        blank=True,
+class Enrollment(models.Model):
+    STATUT_CHOICES = (
+        ('EN_COURS', 'En cours'),
+        ('TERMINE', 'Terminé'),
+        ('ABANDONNE', 'Abandonné'),
     )
-    lecon = models.ForeignKey(
-        Lesson,
-        on_delete=models.CASCADE,
-        related_name="documents",
-        null=True,
-        blank=True,
+
+    apprenant = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='inscriptions',
+        limit_choices_to={'role': 'APPRENANT'}
     )
+    cours = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='inscriptions')
+    date_inscription = models.DateTimeField(auto_now_add=True)
+    taux_progression = models.FloatField(default=0.0)  # Pourcentage entre 0.0 et 100.0
+    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='EN_COURS')
 
     class Meta:
-        verbose_name = "document"
-        verbose_name_plural = "documents"
-
-    def clean(self):
-        # Un document est rattaché soit à un cours, soit à une leçon (pas les deux, pas aucun).
-        if bool(self.cours) == bool(self.lecon):
-            raise ValidationError(
-                "Un document doit être rattaché soit à un cours, soit à une leçon."
-            )
+        unique_together = ('apprenant', 'cours')
 
     def __str__(self):
-        cible = self.lecon or self.cours
-        return f"{self.titre} ({cible})" if cible else self.titre
+        apprenant_name = getattr(self.apprenant, 'username', '')
+        cours_titre = getattr(self.cours, 'titre', '')
+        return f"{apprenant_name} inscrit à {cours_titre}"

@@ -17,7 +17,6 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 # Configuration Sécurité
@@ -34,6 +33,18 @@ AUTH_USER_MODEL = 'authentication.User'
 # Autoriser la communication avec le frontend Angular (port 4200)
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
 # Application definition
+# 1. Langue par défaut et langues supportées
+LANGUAGE_CODE = 'fr'
+
+LANGUAGE_CODE = 'fr-fr'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
+
+# 2. Dossier où seront stockés les fichiers de traduction (.po / .mo)
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -46,11 +57,14 @@ INSTALLED_APPS = [
     'corsheaders',
     'authentication',
     'courses',
+    'quizzes',
+    'interactions',
 ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -145,3 +159,7 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
+# Gestion des fichiers médias (Photos de profil, PDF, etc.)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

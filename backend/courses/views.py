@@ -1,130 +1,83 @@
-from django.db.models import Q
-from rest_framework import permissions, viewsets
-from rest_framework.exceptions import PermissionDenied
-
-from .models import Category, Course, Document, Lesson, Module
+from rest_framework import viewsets, permissions, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from authentication.permissions import IsAccountValidated, IsEnseignant, IsApprenant, IsAdminRole
+from .models import Category, Course, Module, Lesson, Enrollment
+from django.utils.translation import gettext_lazy as _
 from .serializers import (
-    CategorySerializer,
-    CourseDetailSerializer,
-    CourseListSerializer,
-    DocumentSerializer,
-    LessonSerializer,
-    ModuleSerializer,
+    CategorySerializer, CourseSerializer, ModuleSerializer,
+    LessonSerializer, EnrollmentSerializer
 )
 
 
-def get_course_owner(obj):
-    """Retrouve l'instructeur du cours auquel appartient un objet."""
-    if isinstance(obj, Course):
-        return obj.instructeur
-    if isinstance(obj, Module):
-        return obj.cours.instructeur
-    if isinstance(obj, Lesson):
-        return obj.module.cours.instructeur
-    if isinstance(obj, Document):
-        return (obj.cours or obj.lecon.module.cours).instructeur
-    return None
-
-
-class IsInstructorOrReadOnly(permissions.BasePermission):
-    """Lecture pour tous ; modification réservée à l'instructeur du cours."""
-
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return get_course_owner(obj) == request.user
-
-
-def visible_courses_filter(user, prefix=""):
-    """Cours publiés, plus les brouillons de l'utilisateur connecté."""
-    condition = Q(**{f"{prefix}is_published": True})
-    if user.is_authenticated:
-        condition |= Q(**{f"{prefix}instructeur": user})
-    return condition
-
-
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
+    queryset = Category._default_manager.all()  # pylint: disable=no-member
     serializer_class = CategorySerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated, IsAccountValidated]
 
 
 class CourseViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsInstructorOrReadOnly]
-
-    def get_queryset(self):
-        return (
-            Course.objects.filter(visible_courses_filter(self.request.user))
-            .select_related("categorie", "instructeur")
-            .prefetch_related("modules__lessons__documents", "documents")
-        )
-
-    def get_serializer_class(self):
-        if self.action == "list":
-            return CourseListSerializer
-        return CourseDetailSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(instructeur=self.request.user)
-
-
-class CourseContentViewSet(viewsets.ModelViewSet):
-    """Base commune : on ne peut ajouter du contenu qu'à ses propres cours."""
-
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsInstructorOrReadOnly]
-
-    def check_ownership(self, serializer):
-        # On construit un objet temporaire pour retrouver le cours parent.
-        obj = serializer.Meta.model(**serializer.validated_data)
-        if get_course_owner(obj) != self.request.user:
-            raise PermissionDenied("Vous n'êtes pas l'instructeur de ce cours.")
-
-    def perform_create(self, serializer):
-        self.check_ownership(serializer)
-        serializer.save()
-
-    def perform_update(self, serializer):
-        # Empêche de déplacer un contenu vers le cours d'un autre instructeur.
-        data = {
-            field: serializer.validated_data.get(field, getattr(serializer.instance, field))
-            for field in ("cours", "module", "lecon")
-            if hasattr(serializer.instance, field)
-        }
-        obj = serializer.Meta.model(**data)
-        if get_course_owner(obj) != self.request.user:
-            raise PermissionDenied("Vous n'êtes pas l'instructeur de ce cours.")
-        serializer.save()
-
-
-class ModuleViewSet(CourseContentViewSet):
-    serializer_class = ModuleSerializer
-
-    def get_queryset(self):
-        return (
-            Module.objects.filter(visible_courses_filter(self.request.user, "cours__"))
-            .select_related("cours__instructeur")
-            .prefetch_related("lessons__documents")
-        )
-
-
-class LessonViewSet(CourseContentViewSet):
-    serializer_class = LessonSerializer
-
-    def get_queryset(self):
-        return (
-            Lesson.objects.filter(visible_courses_filter(self.request.user, "module__cours__"))
-            .select_related("module__cours__instructeur")
-            .prefetch_related("documents")
-        )
-
-
-class DocumentViewSet(CourseContentViewSet):
-    serializer_class = DocumentSerializer
+    serializer_class = CourseSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAccountValidated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_queryset(self):
         user = self.request.user
-        return Document.objects.filter(
-            visible_courses_filter(user, "cours__")
-            | visible_courses_filter(user, "lecon__module__cours__")
-        ).select_related("cours__instructeur", "lecon__module__cours__instructeur")
+        if user.role == 'ADMIN':
+            return Course._default_manager.all()  # pylint: disable=no-member
+        if user.role == 'ENSEIGNANT':
+            return Course._default_manager.filter(enseignant=user)  # pylint: disable=no-member
+        # Pour les apprenants, afficher uniquement les cours publiés
+        return Course._default_manager.filter(statut='PUBLIE')  # pylint: disable=no-member
 
+    def perform_create(self, serializer):
+        # Assigner automatiquement l'enseignant connecté lors de la création
+        serializer.save(enseignant=self.request.user)
+
+    @action(detail=True, methods=['post'], permission_classes=[IsApprenant])
+    def enroll(self, request, pk=None):
+        """Action permettant à un apprenant de s'inscrire à un cours."""
+        cours = self.get_object()
+        apprenant = request.user
+
+        enrollment, created = Enrollment._default_manager.get_or_create(  # pylint: disable=no-member
+            apprenant=apprenant,
+            cours=cours
+        )
+        if not created:
+            return Response(
+                {'detail': "Vous êtes déjà inscrit à ce cours."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        return Response(
+            {'status': f"Inscription réussie au cours '{cours.titre}'."},
+            status=status.HTTP_201_CREATED
+        )
+
+
+class ModuleViewSet(viewsets.ModelViewSet):
+    queryset = Module._default_manager.all()  # pylint: disable=no-member
+    serializer_class = ModuleSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAccountValidated]
+
+
+class LessonViewSet(viewsets.ModelViewSet):
+    queryset = Lesson._default_manager.all()
+    serializer_class = LessonSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAccountValidated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+
+class EnrollmentViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = EnrollmentSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAccountValidated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'ADMIN':
+            return Enrollment._default_manager.all()  # pylint: disable=no-member
+        elif user.role == 'ENSEIGNANT':
+            return Enrollment._default_manager.filter(cours__enseignant=user)  # pylint: disable=no-member
+        return Enrollment._default_manager.filter(apprenant=user)  # pylint: disable=no-member 

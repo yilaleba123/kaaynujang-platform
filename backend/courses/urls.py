@@ -1,21 +1,14 @@
-from django.urls import include, path
+from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-
-from .views import (
-    CategoryViewSet,
-    CourseViewSet,
-    DocumentViewSet,
-    LessonViewSet,
-    ModuleViewSet,
-)
+from .views import CategoryViewSet, CourseViewSet, ModuleViewSet, LessonViewSet, EnrollmentViewSet
 
 router = DefaultRouter()
-router.register("categories", CategoryViewSet, basename="category")
-router.register("courses", CourseViewSet, basename="course")
-router.register("modules", ModuleViewSet, basename="module")
-router.register("lessons", LessonViewSet, basename="lesson")
-router.register("documents", DocumentViewSet, basename="document")
+router.register(r'categories', CategoryViewSet, basename='categories')
+router.register(r'courses', CourseViewSet, basename='courses')
+router.register(r'modules', ModuleViewSet, basename='modules')
+router.register(r'lessons', LessonViewSet, basename='lessons')
+router.register(r'enrollments', EnrollmentViewSet, basename='enrollments')
 
 urlpatterns = [
-    path("", include(router.urls)),
+    path('', include(router.urls)),
 ]
