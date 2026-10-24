@@ -1,0 +1,25 @@
+<div class="pending-container">
+  <div class="pending-card">
+    <div class="icon-wrapper">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+    </div>
+    <h1>Inscription en cours de validation</h1>
+    <p class="description">
+      Bonjour <strong>{{ currentUser?.first_name || currentUser?.username }}</strong
+      >, votre demande de création de compte est actuellement en cours d'examen par l'équipe
+      d'administration de <strong>KAAYNUJÀNG</strong>.
+    </p>
+    <div class="info-box">
+      <p>
+        Un administrateur va vérifier vos pièces justificatives (diplôme ou CV) avant d'activer
+        votre accès au tableau de bord.
+      </p>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn-logout" (click)="logout()">Déconnexion</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,21 @@
+<div class="admin-app-shell">
+  <!-- Barre Latérale (Desktop + Mobile Drawer) -->
+  <app-admin-sidebar
+    [collapsed]="isSidebarCollapsed"
+    [isMobile]="isMobile"
+    [mobileOpen]="isMobileOpen"
+    (closeMobile)="closeMobileSidebar()"
+  >
+  </app-admin-sidebar>
+
+  <!-- Zone Principale -->
+  <div class="admin-main-area">
+    <app-admin-header (toggleHamburger)="toggleSidebar()"></app-admin-header>
+
+    <main class="admin-page-content" id="main-content" tabindex="-1">
+      <div class="content-max-width">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
+</div>

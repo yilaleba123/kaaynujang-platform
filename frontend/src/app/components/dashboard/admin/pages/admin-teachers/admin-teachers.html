@@ -1,0 +1,277 @@
+<div class="teachers-page">
+  <!-- En-tête -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Gestion des Enseignants</h1>
+      <p class="page-subtitle">
+        Examinez les dossiers d'inscription, téléchargez les justificatifs et validez les accès.
+      </p>
+    </div>
+  </div>
+
+  <!-- Barre de recherche & Filtres -->
+  <div class="filter-bar">
+    <div class="search-box">
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="applyFilters()"
+        placeholder="Rechercher par nom, e-mail, spécialité..."
+        aria-label="Rechercher un enseignant"
+      />
+    </div>
+
+    <div class="filter-group">
+      <button
+        type="button"
+        class="btn-filter"
+        [class.active]="statusFilter === 'ALL'"
+        (click)="statusFilter = 'ALL'; applyFilters()"
+      >
+        Tous ({{ teachers.length }})
+      </button>
+      <button
+        type="button"
+        class="btn-filter pending"
+        [class.active]="statusFilter === 'PENDING'"
+        (click)="statusFilter = 'PENDING'; applyFilters()"
+      >
+        En attente
+      </button>
+      <button
+        type="button"
+        class="btn-filter valid"
+        [class.active]="statusFilter === 'VALID'"
+        (click)="statusFilter = 'VALID'; applyFilters()"
+      >
+        Validés
+      </button>
+    </div>
+  </div>
+
+  <!-- Tableau principal -->
+  <div class="table-card">
+    <div *ngIf="isLoading" class="loading-state"><p>Chargement des dossiers...</p></div>
+    <div *ngIf="!isLoading && filteredTeachers.length === 0" class="empty-state">
+      <p>Aucun enseignant trouvé.</p>
+    </div>
+
+    <div *ngIf="!isLoading && filteredTeachers.length > 0" class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Enseignant</th>
+            <th>Spécialité & Centre</th>
+            <th>Contact</th>
+            <th>Statut</th>
+            <th>Documents</th>
+            <th class="text-right">Actions de Modération</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let teacher of filteredTeachers">
+            <td>
+              <div class="user-cell clickable" (click)="openDetailModal(teacher)">
+                <div class="avatar">
+                  {{ teacher.first_name?.charAt(0) || teacher.username.charAt(0) }}
+                </div>
+                <div>
+                  <p class="name">
+                    {{
+                      teacher.first_name
+                        ? teacher.first_name + ' ' + teacher.last_name
+                        : teacher.username
+                    }}
+                  </p>
+                  <p class="sub">&#64;{{ teacher.username }}</p>
+                </div>
+              </div>
+            </td>
+            <td>
+              <p class="spec-title">{{ teacher.profile?.specialite || 'Non renseigné' }}</p>
+              <p class="sub" *ngIf="teacher.profile?.centre_formation">
+                {{ teacher.profile?.centre_formation }}
+              </p>
+            </td>
+            <td>
+              <p class="email">{{ teacher.email }}</p>
+              <p class="sub">{{ teacher.profile?.telephone || 'Sans téléphone' }}</p>
+            </td>
+            <td>
+              <span
+                class="status-badge"
+                [class.valid]="teacher.est_valide"
+                [class.pending]="!teacher.est_valide"
+              >
+                {{ teacher.est_valide ? 'Validé' : 'En attente' }}
+              </span>
+            </td>
+            <td>
+              <div class="doc-actions">
+                <!-- Boutons Télécharger Directement -->
+                <button
+                  *ngIf="teacher.profile?.cv"
+                  type="button"
+                  class="btn-doc download"
+                  (click)="downloadFile(teacher.profile?.cv, 'CV_' + teacher.username)"
+                  title="Télécharger le CV"
+                >
+                  📥 CV
+                </button>
+                <button
+                  *ngIf="teacher.profile?.diplome"
+                  type="button"
+                  class="btn-doc download"
+                  (click)="downloadFile(teacher.profile?.diplome, 'Diplome_' + teacher.username)"
+                  title="Télécharger le Diplôme"
+                >
+                  📥 Diplôme
+                </button>
+                <button type="button" class="btn-doc view" (click)="openDetailModal(teacher)">
+                  🔍 Fiche
+                </button>
+              </div>
+            </td>
+            <td class="text-right">
+              <div class="action-buttons-group">
+                <ng-container *ngIf="!teacher.est_valide">
+                  <button
+                    type="button"
+                    class="btn-action validate"
+                    (click)="validateTeacher(teacher)"
+                  >
+                    ✓ Valider
+                  </button>
+                  <button type="button" class="btn-action reject" (click)="rejectTeacher(teacher)">
+                    ✕ Rejeter
+                  </button>
+                </ng-container>
+
+                <button
+                  *ngIf="teacher.est_valide"
+                  type="button"
+                  class="btn-action suspend"
+                  (click)="invalidateTeacher(teacher)"
+                >
+                  Suspendre
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modale Analyse détaillée du dossier Enseignant -->
+<div class="modal-overlay" *ngIf="showDetailModal" (click)="closeDetailModal()">
+  <div class="modal-content detail-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        Dossier de candidature : {{ selectedTeacher?.first_name }} {{ selectedTeacher?.last_name }}
+      </h2>
+      <button type="button" class="btn-close" (click)="closeDetailModal()">✕</button>
+    </div>
+
+    <div class="modal-body grid-body">
+      <!-- Info Personnelles -->
+      <div class="info-group">
+        <h3>Informations personnelles</h3>
+        <p>
+          <strong>Nom complet :</strong> {{ selectedTeacher?.first_name }}
+          {{ selectedTeacher?.last_name }}
+        </p>
+        <p><strong>Nom d'utilisateur :</strong> &#64;{{ selectedTeacher?.username }}</p>
+        <p><strong>Email :</strong> {{ selectedTeacher?.email }}</p>
+        <p>
+          <strong>Téléphone :</strong> {{ selectedTeacher?.profile?.telephone || 'Non renseigné' }}
+        </p>
+        <p>
+          <strong>Adresse :</strong> {{ selectedTeacher?.profile?.adresse || 'Non renseignée' }}
+        </p>
+        <p>
+          <strong>Date d'inscription :</strong> {{ selectedTeacher?.date_joined || 'Récemment' }}
+        </p>
+      </div>
+
+      <!-- Profil Professionnel -->
+      <div class="info-group">
+        <h3>Profil professionnel</h3>
+        <p>
+          <strong>Spécialité :</strong>
+          {{ selectedTeacher?.profile?.specialite || 'Non renseignée' }}
+        </p>
+        <p>
+          <strong>Centre de formation / Établissement :</strong>
+          {{ selectedTeacher?.profile?.centre_formation || 'Non renseigné' }}
+        </p>
+        <p>
+          <strong>Statut du compte :</strong>
+          <span
+            class="status-badge"
+            [class.valid]="selectedTeacher?.est_valide"
+            [class.pending]="!selectedTeacher?.est_valide"
+          >
+            {{ selectedTeacher?.est_valide ? 'Validé' : 'En attente de validation' }}
+          </span>
+        </p>
+      </div>
+
+      <!-- Téléchargement Direct -->
+      <div class="info-group full-width">
+        <h3>Pièces justificatives fournies</h3>
+        <div class="doc-download-cards">
+          <div class="doc-card">
+            <span>Curriculum Vitae (CV)</span>
+            <button
+              *ngIf="selectedTeacher?.profile?.cv"
+              class="btn-primary"
+              (click)="
+                downloadFile(selectedTeacher?.profile?.cv, 'CV_' + selectedTeacher?.username)
+              "
+            >
+              Télécharger le CV
+            </button>
+            <span *ngIf="!selectedTeacher?.profile?.cv" class="text-muted">Aucun CV joint</span>
+          </div>
+
+          <div class="doc-card">
+            <span>Diplôme ou Attestation</span>
+            <button
+              *ngIf="selectedTeacher?.profile?.diplome"
+              class="btn-primary"
+              (click)="
+                downloadFile(
+                  selectedTeacher?.profile?.diplome,
+                  'Diplome_' + selectedTeacher?.username
+                )
+              "
+            >
+              Télécharger le Diplôme
+            </button>
+            <span *ngIf="!selectedTeacher?.profile?.diplome" class="text-muted"
+              >Aucun diplôme joint</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <ng-container *ngIf="selectedTeacher && !selectedTeacher.est_valide">
+        <button type="button" class="btn-action reject" (click)="rejectTeacher(selectedTeacher)">
+          Rejeter la candidature
+        </button>
+        <button
+          type="button"
+          class="btn-action validate"
+          (click)="validateTeacher(selectedTeacher); closeDetailModal()"
+        >
+          Valider et Activer le compte
+        </button>
+      </ng-container>
+      <button type="button" class="btn-secondary" (click)="closeDetailModal()">Fermer</button>
+    </div>
+  </div>
+</div>

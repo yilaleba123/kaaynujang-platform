@@ -1,0 +1,50 @@
+{
+  "NAV": {
+    "HOME": "Home",
+    "COURSES": "Courses",
+    "ABOUT": "About",
+    "CONTACT": "Contact",
+    "LOGIN": "Sign In",
+    "REGISTER": "Register"
+  },
+  "HERO": {
+    "TITLE": "African educational excellence",
+    "HIGHLIGHT": "just a click away",
+    "SUBTITLE": "KAAYNUJÀNG connects West African students, university students, and teachers with world-class training adapted to our continent's realities.",
+    "CTA_REGISTER": "Sign up for free",
+    "CTA_COURSES": "Discover courses"
+  },
+  "ADVANTAGES": {
+    "FLEXIBLE_TITLE": "Flexible learning",
+    "FLEXIBLE_DESC": "Study at your own pace, on mobile, tablet, or computer according to your schedule.",
+    "ACCESSIBLE_TITLE": "Accessible anywhere",
+    "ACCESSIBLE_DESC": "Content optimized for low-bandwidth connections to guarantee access across West Africa.",
+    "CERTIFIED_TITLE": "Certified courses",
+    "CERTIFIED_DESC": "Validate your skills with certificates recognized by our partner companies and institutions."
+  },
+  "COURSES": {
+    "TITLE": "Featured Courses",
+    "SUBTITLE": "Discover our most popular courses, praised by our learners.",
+    "SEE_ALL": "View entire catalog"
+  },
+  "TESTIMONIALS": {
+    "TITLE": "They transformed their career"
+  },
+  "ABOUT": {
+    "TITLE": "About KAAYNUJÀNG",
+    "P1": "KAAYNUJÀNG was born from a strong vision: democratizing access to quality education in West Africa. We believe the potential of African youth is unlimited when equipped with the right tools.",
+    "P2": "Our team consists of passionate educators, technologists, and community leaders united by the mission to bridge the digital and educational divide.",
+    "FORCE_N_TITLE": "Force-N Mentorship Program",
+    "FORCE_N_DESC": "In exclusive partnership with Force-N, we guide our top learners toward employment through personalized coaching by industry professionals."
+  },
+  "CONTACT": {
+    "TITLE": "Contact Us",
+    "SUBTITLE": "Have a question? Our team is here to help.",
+    "NAME": "Full Name",
+    "EMAIL": "Email",
+    "CATEGORY": "Inquiry Category",
+    "MESSAGE": "Message",
+    "SEND": "Send Message",
+    "FAQ_TITLE": "Frequently Asked Questions"
+  }
+}

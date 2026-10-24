@@ -1,0 +1,71 @@
+<div class="modal-overlay" *ngIf="activeModal" (click)="onClose()">
+  <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h3 *ngIf="activeModal === 'privacy'">Politique de Confidentialité</h3>
+      <h3 *ngIf="activeModal === 'terms'">Conditions Générales d'Utilisation (RGPD)</h3>
+      <button class="btn-close" (click)="onClose()" aria-label="Fermer la fenêtre">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Contenu Politique de Confidentialité -->
+      <div *ngIf="activeModal === 'privacy'">
+        <p><strong>Dernière mise à jour : Octobre 2026</strong></p>
+        <p>
+          La protection de vos données personnelles est une priorité absolue pour KAAYNUJÀNG.
+          Conformément aux réglementations de protection des données de la CEDEAO et au RGPD :
+        </p>
+
+        <h4>1. Collecte des données</h4>
+        <p>
+          Nous collectons uniquement les informations nécessaires à la création de votre compte :
+          nom, prénom, adresse e-mail, rôle (Apprenant ou Enseignant) et niveau d'études.
+        </p>
+
+        <h4>2. Utilisation des données</h4>
+        <p>
+          Vos données sont exclusivement utilisées pour gérer votre parcours d'apprentissage, vous
+          délivrer des certificats officiels et vous notifier des évolutions de vos cours.
+        </p>
+
+        <h4>3. Vos droits</h4>
+        <p>
+          Vous disposez à tout moment d'un droit d'accès, de rectification et de suppression totale
+          de vos données depuis votre espace profil ou sur simple demande à
+          <code>privacy@kaaynujang.africa</code>.
+        </p>
+      </div>
+
+      <!-- Contenu CGU / RGPD -->
+      <div *ngIf="activeModal === 'terms'">
+        <p><strong>Dernière mise à jour : Octobre 2026</strong></p>
+        <p>
+          En accédant à la plateforme KAAYNUJÀNG, vous acceptez d'être lié par les présentes
+          conditions d'utilisation :
+        </p>
+
+        <h4>1. Accès aux contenus pédagogiques</h4>
+        <p>
+          Les visiteurs non inscrits peuvent consulter les sommaires et présentations synthétiques
+          des cours. La consultation complète des leçons, quiz et l'obtention des certificats
+          exigent la création d'un compte valide.
+        </p>
+
+        <h4>2. Propriété intellectuelle</h4>
+        <p>
+          L'ensemble des cours, fiches PDF et contenus vidéos hébergés restent la propriété
+          exclusive de leurs enseignants auteurs et de la plateforme KAAYNUJÀNG.
+        </p>
+
+        <h4>3. Conformité RGPD</h4>
+        <p>
+          Aucune donnée personnelle n'est vendue ni cédée à des tiers. Les connexions et jetons JWT
+          sont sécurisés pour garantir la confidentialité absolue de vos échanges.
+        </p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-confirm" (click)="onClose()">J'ai compris</button>
+    </div>
+  </div>
+</div>

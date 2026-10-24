@@ -1,0 +1,112 @@
+<header class="navbar">
+  <div class="nav-container">
+    <a routerLink="/" class="logo" (click)="closeMobileMenu()" aria-label="KAAYNUJÀNG - Accueil">
+      <svg
+        class="logo-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        aria-hidden="true"
+      >
+        <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+        <path d="M6 12v5c3 3 9 3 12 0v-5" />
+      </svg>
+      <span class="brand-name">KAAYNUJÀNG</span>
+    </a>
+
+    <!-- Navigation Desktop -->
+    <nav class="nav-links desktop-only" aria-label="Navigation principale">
+      <a routerLink="/" (click)="scrollToSection('top')">{{ 'NAV.HOME' | translate }}</a>
+      <a href="#cours" (click)="$event.preventDefault(); scrollToSection('cours')">{{
+        'NAV.COURSES' | translate
+      }}</a>
+      <a href="#a-propos" (click)="$event.preventDefault(); scrollToSection('a-propos')">{{
+        'NAV.ABOUT' | translate
+      }}</a>
+      <a href="#contact" (click)="$event.preventDefault(); scrollToSection('contact')">{{
+        'NAV.CONTACT' | translate
+      }}</a>
+    </nav>
+
+    <div class="nav-actions desktop-only">
+      <div class="lang-switcher">
+        <button [class.active]="currentLang === 'fr'" (click)="switchLanguage('fr')" type="button">
+          FR
+        </button>
+        <span class="divider">|</span>
+        <button [class.active]="currentLang === 'en'" (click)="switchLanguage('en')" type="button">
+          EN
+        </button>
+      </div>
+
+      <a routerLink="/login" class="btn-login">{{ 'NAV.LOGIN' | translate }}</a>
+      <a routerLink="/register" class="btn-register">{{ 'NAV.REGISTER' | translate }}</a>
+    </div>
+
+    <!-- Bouton Hamburger Mobile -->
+    <button
+      class="mobile-toggle"
+      (click)="toggleMobileMenu()"
+      [attr.aria-expanded]="mobileMenuOpen"
+      aria-label="Ouvrir le menu de navigation"
+      type="button"
+    >
+      <svg
+        *ngIf="!mobileMenuOpen"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <line x1="3" y1="18" x2="21" y2="18" />
+      </svg>
+      <svg
+        *ngIf="mobileMenuOpen"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Drawer / Overlay Menu Mobile -->
+  <div class="mobile-drawer" [class.open]="mobileMenuOpen" aria-hidden="!mobileMenuOpen">
+    <nav class="mobile-nav-links">
+      <a routerLink="/" (click)="scrollToSection('top')">{{ 'NAV.HOME' | translate }}</a>
+      <a href="#cours" (click)="$event.preventDefault(); scrollToSection('cours')">{{
+        'NAV.COURSES' | translate
+      }}</a>
+      <a href="#a-propos" (click)="$event.preventDefault(); scrollToSection('a-propos')">{{
+        'NAV.ABOUT' | translate
+      }}</a>
+      <a href="#contact" (click)="$event.preventDefault(); scrollToSection('contact')">{{
+        'NAV.CONTACT' | translate
+      }}</a>
+    </nav>
+
+    <div class="mobile-actions">
+      <div class="lang-switcher">
+        <button [class.active]="currentLang === 'fr'" (click)="switchLanguage('fr')" type="button">
+          FR
+        </button>
+        <span class="divider">|</span>
+        <button [class.active]="currentLang === 'en'" (click)="switchLanguage('en')" type="button">
+          EN
+        </button>
+      </div>
+      <a routerLink="/login" class="btn-login" (click)="closeMobileMenu()">{{
+        'NAV.LOGIN' | translate
+      }}</a>
+      <a routerLink="/register" class="btn-register" (click)="closeMobileMenu()">{{
+        'NAV.REGISTER' | translate
+      }}</a>
+    </div>
+  </div>
+</header>

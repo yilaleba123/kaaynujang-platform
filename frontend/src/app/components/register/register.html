@@ -1,0 +1,274 @@
+<div class="register-page">
+  <div class="header-branding">
+    <h1 class="brand-title">KAAYNUJÀNG</h1>
+    <p class="brand-subtitle">Rejoignez notre plateforme d'apprentissage</p>
+  </div>
+
+  <div class="register-card">
+    <!-- Écran de succès si inscription enregistrée -->
+    <div *ngIf="successMessage" class="success-screen">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+      <h2>Demande d'inscription enregistrée !</h2>
+      <p class="notice-text">
+        Votre compte est actuellement <strong>en cours de validation par l'administration</strong>.
+        Un administrateur va examiner vos documents avant d'activer votre accès.
+      </p>
+      <a routerLink="/login" class="btn-primary">Retour à la page de connexion</a>
+    </div>
+
+    <!-- Formulaire d'inscription -->
+    <form *ngIf="!successMessage" [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+      <!-- Sélection du Rôle -->
+      <div class="role-section">
+        <h2 class="section-title">Je suis un...</h2>
+        <div class="role-grid">
+          <button
+            type="button"
+            class="role-card"
+            [class.active]="selectedRole === 'APPRENANT'"
+            (click)="setRole('APPRENANT')"
+          >
+            <svg
+              class="role-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+              <path d="M6 12v5c3 3 9 3 12 0v-5" />
+            </svg>
+            <span class="role-label">Étudiant</span>
+          </button>
+
+          <button
+            type="button"
+            class="role-card"
+            [class.active]="selectedRole === 'ENSEIGNANT'"
+            (click)="setRole('ENSEIGNANT')"
+          >
+            <svg
+              class="role-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+            </svg>
+            <span class="role-label">Enseignant</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Notice de validation obligatoire -->
+      <div class="info-banner">
+        <svg
+          class="info-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+        <div>
+          <strong>Validation administrative requise</strong>
+          <p>
+            Toute nouvelle inscription est mise en attente de validation par les équipes de
+            KAAYNUJÀNG afin de garantir la qualité de notre réseau.
+          </p>
+        </div>
+      </div>
+
+      <!-- Alerte d'erreur -->
+      <div *ngIf="errorMessage" class="error-alert">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Informations personnelles -->
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label for="lastName">Nom <span class="required">*</span></label>
+          <input
+            id="lastName"
+            type="text"
+            formControlName="lastName"
+            class="form-control"
+            placeholder="Votre nom"
+          />
+        </div>
+        <div class="form-group">
+          <label for="firstName">Prénom <span class="required">*</span></label>
+          <input
+            id="firstName"
+            type="text"
+            formControlName="firstName"
+            class="form-control"
+            placeholder="Votre prénom"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Adresse e-mail <span class="required">*</span></label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          class="form-control"
+          placeholder="exemple@email.com"
+        />
+      </div>
+
+      <!-- Pièce justificative Étudiant (Diplôme) -->
+      <div class="form-group" *ngIf="selectedRole === 'APPRENANT'">
+        <label>Dernier diplôme ou attestation <span class="required">*</span></label>
+        <label class="file-upload-box">
+          <svg
+            class="upload-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+          <span class="upload-text" *ngIf="!selectedDiplomaFile"
+            >Cliquez pour téléverser votre diplôme (PDF, JPG, PNG)</span
+          >
+          <span class="upload-text selected" *ngIf="selectedDiplomaFile"
+            >Fichier sélectionné : {{ selectedDiplomaFile.name }}</span
+          >
+          <input
+            type="file"
+            (change)="onDiplomaSelected($event)"
+            accept=".pdf,.jpg,.jpeg,.png"
+            class="sr-only"
+          />
+        </label>
+      </div>
+
+      <!-- Champs spécifiques Enseignant (Spécialité & CV) -->
+      <div *ngIf="selectedRole === 'ENSEIGNANT'">
+        <div class="form-group">
+          <label for="specialty">Spécialité <span class="required">*</span></label>
+          <input
+            id="specialty"
+            type="text"
+            formControlName="specialty"
+            class="form-control"
+            placeholder="Ex: Mathématiques, Développement Web..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Curriculum Vitae (CV) <span class="required">*</span></label>
+          <label class="file-upload-box">
+            <svg
+              class="upload-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <span class="upload-text" *ngIf="!selectedCvFile"
+              >Cliquez pour téléverser votre CV (PDF)</span
+            >
+            <span class="upload-text selected" *ngIf="selectedCvFile"
+              >CV sélectionné : {{ selectedCvFile.name }}</span
+            >
+            <input type="file" (change)="onCvSelected($event)" accept=".pdf" class="sr-only" />
+          </label>
+        </div>
+      </div>
+
+      <!-- Champ Optionnel Commun -->
+      <div class="form-group">
+        <label for="trainingCenter"
+          >Centre de formation <span class="optional">(Optionnel)</span></label
+        >
+        <input
+          id="trainingCenter"
+          type="text"
+          formControlName="trainingCenter"
+          class="form-control"
+          placeholder="Nom de votre établissement"
+        />
+      </div>
+
+      <!-- Mot de passe & Confirmation -->
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label for="password">Mot de passe <span class="required">*</span></label>
+          <div class="password-wrapper">
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              class="form-control"
+            />
+            <button type="button" class="btn-eye" (click)="showPassword = !showPassword">
+              {{ showPassword ? 'Masquer' : 'Afficher' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirmation <span class="required">*</span></label>
+          <input
+            id="confirmPassword"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="confirmPassword"
+            class="form-control"
+          />
+        </div>
+      </div>
+
+      <!-- Liste de vérification du mot de passe -->
+      <div class="password-checklist">
+        <p class="checklist-title">Le mot de passe doit contenir :</p>
+        <div class="checklist-grid">
+          <div class="check-item" [class.valid]="hasMinLength">
+            <span class="bullet">{{ hasMinLength ? '✓' : '○' }}</span> Au moins 8 caractères
+          </div>
+          <div class="check-item" [class.valid]="hasUppercase">
+            <span class="bullet">{{ hasUppercase ? '✓' : '○' }}</span> Au moins une majuscule
+          </div>
+          <div class="check-item" [class.valid]="hasNumber">
+            <span class="bullet">{{ hasNumber ? '✓' : '○' }}</span> Au moins un chiffre
+          </div>
+          <div class="check-item" [class.valid]="hasSpecialChar">
+            <span class="bullet">{{ hasSpecialChar ? '✓' : '○' }}</span> Au moins un caractère
+            spécial
+          </div>
+        </div>
+      </div>
+
+      <!-- Bouton de Soumission -->
+      <div class="submit-footer">
+        <button type="submit" class="btn-submit" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Créer mon compte</span>
+          <span *ngIf="isLoading">Envoi en cours...</span>
+        </button>
+        <p class="login-redirect">
+          Vous avez déjà un compte ? <a routerLink="/login">Connectez-vous</a>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>

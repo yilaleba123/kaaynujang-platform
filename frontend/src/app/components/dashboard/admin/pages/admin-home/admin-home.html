@@ -1,0 +1,151 @@
+<div class="dashboard-home">
+  <!-- En-tête avec raccourcis -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Tableau de bord Administrateur</h1>
+      <p class="page-subtitle">Aperçu général de la plateforme KAAYNUJÀNG en temps réel.</p>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn-secondary" (click)="goToModule('/dashboard/admin/students')">
+        Gérer les apprenants
+      </button>
+      <button type="button" class="btn-primary" (click)="goToModule('/dashboard/admin/teachers')">
+        Gérer les enseignants
+      </button>
+    </div>
+  </div>
+
+  <!-- Cartes de Statistiques -->
+  <div class="stats-grid">
+    <div class="stat-card warning">
+      <div class="stat-icon-wrapper">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M19 8v6"></path>
+          <path d="M22 11h-6"></path>
+        </svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-label">EN ATTENTE DE VALIDATION</span>
+        <span class="stat-value">{{ pendingValidation }}</span>
+        <span class="stat-sub">Apprenants et Enseignants</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon-wrapper brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+          <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+        </svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-label">TOTAL APPRENANTS</span>
+        <span class="stat-value">{{ totalStudents }}</span>
+        <span class="stat-sub">Comptes enregistrés</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon-wrapper brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+          <line x1="8" y1="6" x2="16" y2="6"></line>
+          <line x1="8" y1="10" x2="16" y2="10"></line>
+        </svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-label">TOTAL ENSEIGNANTS</span>
+        <span class="stat-value">{{ totalTeachers }}</span>
+        <span class="stat-sub">Formateurs actifs</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon-wrapper brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-label">COURS PUBLIÉS</span>
+        <span class="stat-value">{{ publishedCourses }}</span>
+        <span class="stat-sub">Accessibles sur le catalogue</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grille à 2 colonnes : Inscriptions prioritaires & Journal de sécurité -->
+  <div class="dashboard-grid">
+    <!-- Bloc 1 : Demandes d'inscriptions prioritaires -->
+    <div class="content-card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">Demandes d'inscriptions prioritaires</h2>
+          <p class="card-subtitle">Utilisateurs nécessitant une validation administrative</p>
+        </div>
+        <span class="badge-count" *ngIf="pendingValidation > 0">{{ pendingValidation }}</span>
+      </div>
+
+      <div class="card-body">
+        <div *ngIf="isLoading" class="loading-state">
+          <p>Chargement des demandes...</p>
+        </div>
+
+        <div *ngIf="!isLoading && pendingUsers.length === 0" class="empty-state">
+          <p>Aucune demande de validation en attente.</p>
+        </div>
+
+        <div *ngIf="!isLoading && pendingUsers.length > 0" class="pending-list">
+          <div *ngFor="let user of pendingUsers" class="pending-item">
+            <div class="user-avatar">
+              {{ user.first_name?.charAt(0) || user.username.charAt(0) }}
+            </div>
+            <div class="user-details">
+              <p class="user-name">
+                {{ user.first_name ? user.first_name + ' ' + user.last_name : user.username }}
+              </p>
+              <p class="user-role">
+                <span class="role-tag" [class.teacher]="user.role === 'ENSEIGNANT'">
+                  {{ user.role === 'ENSEIGNANT' ? 'Enseignant' : 'Apprenant' }}
+                </span>
+                · {{ user.email }}
+              </p>
+            </div>
+            <button type="button" class="btn-validate" (click)="validateUser(user)">Valider</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloc 2 : Journal de sécurité -->
+    <div class="content-card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">Journal de sécurité</h2>
+          <p class="card-subtitle">Dernières actions enregistrées par le système</p>
+        </div>
+        <a routerLink="/dashboard/admin/logs" class="link-view-all">Voir tout</a>
+      </div>
+
+      <div class="card-body">
+        <div *ngIf="recentLogs.length === 0" class="empty-state">
+          <p>Aucun événement récent enregistré.</p>
+        </div>
+
+        <div *ngIf="recentLogs.length > 0" class="logs-list">
+          <div *ngFor="let log of recentLogs" class="log-item">
+            <div class="log-icon">i</div>
+            <div class="log-details">
+              <p class="log-text">
+                <strong>{{ log.user }}</strong> : {{ log.action }}
+              </p>
+              <p class="log-time">{{ log.created_at }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

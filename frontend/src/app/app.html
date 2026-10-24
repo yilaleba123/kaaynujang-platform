@@ -1,1 +1,16 @@
+<!-- Navbar publique -->
+<app-header *ngIf="!isDashboardRoute"></app-header>
+
+<!-- Contenu dynamique -->
 <router-outlet></router-outlet>
+
+<!-- Footer public unique -->
+<app-footer *ngIf="!isDashboardRoute" (openLegal)="openLegalModal($event)"> </app-footer>
+
+<!-- Modale légale globale -->
+<app-legal-modal
+  *ngIf="!isDashboardRoute"
+  [activeModal]="activeLegalModal"
+  (closeModal)="activeLegalModal = null"
+>
+</app-legal-modal>

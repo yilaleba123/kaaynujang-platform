@@ -1,0 +1,50 @@
+{
+  "NAV": {
+    "HOME": "Accueil",
+    "COURSES": "Cours",
+    "ABOUT": "À propos",
+    "CONTACT": "Contact",
+    "LOGIN": "Connexion",
+    "REGISTER": "S'inscrire"
+  },
+  "HERO": {
+    "TITLE": "L'excellence éducative africaine",
+    "HIGHLIGHT": "à portée de clic",
+    "SUBTITLE": "KAAYNUJÀNG connecte élèves, étudiants et enseignants d'Afrique de l'Ouest avec des formations de classe mondiale, adaptées aux réalités de notre continent.",
+    "CTA_REGISTER": "S'inscrire gratuitement",
+    "CTA_COURSES": "Découvrir les cours"
+  },
+  "ADVANTAGES": {
+    "FLEXIBLE_TITLE": "Apprentissage flexible",
+    "FLEXIBLE_DESC": "Étudiez à votre rythme, selon votre emploi du temps, sur mobile, tablette ou ordinateur.",
+    "ACCESSIBLE_TITLE": "Accessible partout",
+    "ACCESSIBLE_DESC": "Des contenus optimisés pour les connexions bas débit afin de garantir l'accès dans toute l'Afrique de l'Ouest.",
+    "CERTIFIED_TITLE": "Formations certifiantes",
+    "CERTIFIED_DESC": "Validez vos acquis avec des certificats reconnus par nos entreprises et institutions partenaires."
+  },
+  "COURSES": {
+    "TITLE": "Cours mis en avant",
+    "SUBTITLE": "Découvrez nos formations les plus populaires du moment, plébiscitées par nos apprenants.",
+    "SEE_ALL": "Voir tout le catalogue"
+  },
+  "TESTIMONIALS": {
+    "TITLE": "Ils ont transformé leur carrière"
+  },
+  "ABOUT": {
+    "TITLE": "À propos de KAAYNUJÀNG",
+    "P1": "KAAYNUJÀNG est né d'une vision forte : démocratiser l'accès à une éducation de qualité en Afrique de l'Ouest. Nous croyons que le potentiel de la jeunesse africaine est illimité lorsqu'elle est dotée des bons outils.",
+    "P2": "Notre équipe est composée d'éducateurs passionnés, de technologues et de leaders communautaires unis par la mission de réduire la fracture numérique et éducative.",
+    "FORCE_N_TITLE": "Programme de Mentorat Force-N",
+    "FORCE_N_DESC": "En partenariat exclusif avec Force-N, nous accompagnons nos meilleurs apprenants vers l'emploi grâce à un suivi personnalisé par des professionnels du secteur."
+  },
+  "CONTACT": {
+    "TITLE": "Nous contacter",
+    "SUBTITLE": "Une question ? Notre équipe est là pour vous aider.",
+    "NAME": "Nom complet",
+    "EMAIL": "Email",
+    "CATEGORY": "Catégorie de demande",
+    "MESSAGE": "Message",
+    "SEND": "Envoyer le message",
+    "FAQ_TITLE": "Questions fréquentes"
+  }
+}

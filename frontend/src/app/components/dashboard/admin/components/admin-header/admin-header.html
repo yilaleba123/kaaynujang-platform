@@ -1,0 +1,83 @@
+<header class="topbar-container">
+  <!-- Hamburger Button -->
+  <button
+    type="button"
+    class="btn-hamburger"
+    (click)="toggleHamburger.emit()"
+    aria-label="Basculer la navigation"
+  >
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.75"
+    >
+      <path d="M3 12h18 M3 6h18 M3 18h18" />
+    </svg>
+  </button>
+
+  <div class="topbar-spacer"></div>
+
+  <!-- Notifications Bell -->
+  <button type="button" class="btn-bell" [attr.aria-label]="notifCount + ' notifications'">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.75"
+    >
+      <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 01-3.46 0" />
+    </svg>
+    <span class="badge-notif" *ngIf="notifCount > 0">{{ notifCount }}</span>
+  </button>
+
+  <!-- User Avatar Dropdown -->
+  <div class="avatar-dropdown-wrapper">
+    <button type="button" class="btn-avatar" (click)="toggleAvatar()">
+      <div class="avatar-circle">
+        {{ currentUser?.first_name?.charAt(0) || currentUser?.username?.charAt(0) || 'A' }}
+      </div>
+    </button>
+
+    <div class="dropdown-menu" *ngIf="avatarOpen">
+      <div class="dropdown-header">
+        <p class="user-name">{{ currentUser?.username || 'Administrateur' }}</p>
+        <p class="user-email">{{ currentUser?.email || 'admin@kaaynujang.sn' }}</p>
+      </div>
+      <button class="menu-item" (click)="logout()">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+        >
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4 M16 17l5-5-5-5 M21 12H9" />
+        </svg>
+        Déconnexion
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Breadcrumb Bar -->
+<div class="breadcrumb-bar">
+  <span class="brand-text">KAAYNUJÀNG</span>
+  <svg
+    class="chevron-icon"
+    width="12"
+    height="12"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+  >
+    <path d="M9 18l6-6-6-6" />
+  </svg>
+  <span class="page-title-text">{{ currentPageTitle }}</span>
+</div>

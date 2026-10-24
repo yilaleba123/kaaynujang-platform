@@ -1,0 +1,25 @@
+<section class="hero-section">
+  <div class="container hero-container">
+    <div class="hero-content">
+      <h1>
+        {{ 'HERO.TITLE' | translate }}
+        <span class="highlight">{{ 'HERO.HIGHLIGHT' | translate }}</span>
+      </h1>
+      <p>{{ 'HERO.SUBTITLE' | translate }}</p>
+      <div class="hero-buttons">
+        <a routerLink="/register" class="btn-primary">{{ 'HERO.CTA_REGISTER' | translate }}</a>
+        <a routerLink="/courses" class="btn-secondary">{{ 'HERO.CTA_COURSES' | translate }}</a>
+      </div>
+    </div>
+    <div class="hero-image-card">
+      <div class="image-inner">
+        <img
+          src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80&fit=crop"
+          alt="Groupe d'étudiants travaillant ensemble"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+    </div>
+  </div>
+</section>

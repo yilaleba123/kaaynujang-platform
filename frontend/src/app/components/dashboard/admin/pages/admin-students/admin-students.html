@@ -1,0 +1,236 @@
+<div class="students-page">
+  <!-- En-tête -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Gestion des Apprenants</h1>
+      <p class="page-subtitle">
+        Consultez les informations d'inscription des étudiants et gérez leur accès.
+      </p>
+    </div>
+  </div>
+
+  <!-- Barre de recherche -->
+  <div class="filter-bar">
+    <div class="search-box">
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="applyFilters()"
+        placeholder="Rechercher par nom, e-mail..."
+        aria-label="Rechercher un apprenant"
+      />
+    </div>
+
+    <div class="filter-group">
+      <button
+        type="button"
+        class="btn-filter"
+        [class.active]="statusFilter === 'ALL'"
+        (click)="statusFilter = 'ALL'; applyFilters()"
+      >
+        Tous ({{ students.length }})
+      </button>
+      <button
+        type="button"
+        class="btn-filter pending"
+        [class.active]="statusFilter === 'PENDING'"
+        (click)="statusFilter = 'PENDING'; applyFilters()"
+      >
+        En attente
+      </button>
+      <button
+        type="button"
+        class="btn-filter valid"
+        [class.active]="statusFilter === 'VALID'"
+        (click)="statusFilter = 'VALID'; applyFilters()"
+      >
+        Validés
+      </button>
+    </div>
+  </div>
+
+  <!-- Tableau -->
+  <div class="table-card">
+    <div *ngIf="isLoading" class="loading-state"><p>Chargement des apprenants...</p></div>
+    <div *ngIf="!isLoading && filteredStudents.length === 0" class="empty-state">
+      <p>Aucun apprenant trouvé.</p>
+    </div>
+
+    <div *ngIf="!isLoading && filteredStudents.length > 0" class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Apprenant</th>
+            <th>Contact</th>
+            <th>Niveau d'étude</th>
+            <th>Statut</th>
+            <th>Justificatif</th>
+            <th class="text-right">Actions de Modération</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let student of filteredStudents">
+            <td>
+              <div class="user-cell clickable" (click)="openDetailModal(student)">
+                <div class="avatar">
+                  {{ student.first_name?.charAt(0) || student.username.charAt(0) }}
+                </div>
+                <div>
+                  <p class="name">
+                    {{
+                      student.first_name
+                        ? student.first_name + ' ' + student.last_name
+                        : student.username
+                    }}
+                  </p>
+                  <p class="sub">&#64;{{ student.username }}</p>
+                </div>
+              </div>
+            </td>
+            <td>
+              <p class="email">{{ student.email }}</p>
+              <p class="sub">{{ student.profile?.telephone || 'Sans téléphone' }}</p>
+            </td>
+            <td>
+              <span class="level-badge">{{
+                student.profile?.niveau_etude || 'Non renseigné'
+              }}</span>
+            </td>
+            <td>
+              <span
+                class="status-badge"
+                [class.valid]="student.est_valide"
+                [class.pending]="!student.est_valide"
+              >
+                {{ student.est_valide ? 'Validé' : 'En attente' }}
+              </span>
+            </td>
+            <td>
+              <button
+                *ngIf="student.profile?.diplome"
+                type="button"
+                class="btn-doc download"
+                (click)="downloadFile(student.profile?.diplome, 'Justificatif_' + student.username)"
+              >
+                📥 Télécharger
+              </button>
+              <button type="button" class="btn-doc view" (click)="openDetailModal(student)">
+                🔍 Fiche
+              </button>
+            </td>
+            <td class="text-right">
+              <div class="action-buttons-group">
+                <ng-container *ngIf="!student.est_valide">
+                  <button
+                    type="button"
+                    class="btn-action validate"
+                    (click)="validateStudent(student)"
+                  >
+                    ✓ Valider
+                  </button>
+                  <button type="button" class="btn-action reject" (click)="rejectStudent(student)">
+                    ✕ Rejeter
+                  </button>
+                </ng-container>
+
+                <button
+                  *ngIf="student.est_valide"
+                  type="button"
+                  class="btn-action suspend"
+                  (click)="invalidateStudent(student)"
+                >
+                  Suspendre
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modale Analyse détaillée du dossier Apprenant -->
+<div class="modal-overlay" *ngIf="showDetailModal" (click)="closeDetailModal()">
+  <div class="modal-content detail-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        Dossier de l'apprenant : {{ selectedStudent?.first_name }} {{ selectedStudent?.last_name }}
+      </h2>
+      <button type="button" class="btn-close" (click)="closeDetailModal()">✕</button>
+    </div>
+
+    <div class="modal-body grid-body">
+      <div class="info-group">
+        <h3>Informations personnelles</h3>
+        <p>
+          <strong>Nom complet :</strong> {{ selectedStudent?.first_name }}
+          {{ selectedStudent?.last_name }}
+        </p>
+        <p><strong>Nom d'utilisateur :</strong> &#64;{{ selectedStudent?.username }}</p>
+        <p><strong>Email :</strong> {{ selectedStudent?.email }}</p>
+        <p>
+          <strong>Téléphone :</strong> {{ selectedStudent?.profile?.telephone || 'Non renseigné' }}
+        </p>
+      </div>
+
+      <div class="info-group">
+        <h3>Scolarité & Statut</h3>
+        <p>
+          <strong>Niveau d'étude :</strong>
+          {{ selectedStudent?.profile?.niveau_etude || 'Non renseigné' }}
+        </p>
+        <p>
+          <strong>Statut du compte :</strong>
+          <span
+            class="status-badge"
+            [class.valid]="selectedStudent?.est_valide"
+            [class.pending]="!selectedStudent?.est_valide"
+          >
+            {{ selectedStudent?.est_valide ? 'Validé' : 'En attente de validation' }}
+          </span>
+        </p>
+      </div>
+
+      <div class="info-group full-width">
+        <h3>Pièces justificatives</h3>
+        <div class="doc-download-cards">
+          <div class="doc-card">
+            <span>Diplôme ou Carte d'étudiant</span>
+            <button
+              *ngIf="selectedStudent?.profile?.diplome"
+              class="btn-primary"
+              (click)="
+                downloadFile(
+                  selectedStudent?.profile?.diplome,
+                  'Justificatif_' + selectedStudent?.username
+                )
+              "
+            >
+              Télécharger la pièce
+            </button>
+            <span *ngIf="!selectedStudent?.profile?.diplome" class="text-muted"
+              >Aucune pièce jointe</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <ng-container *ngIf="selectedStudent && !selectedStudent.est_valide">
+        <button type="button" class="btn-action reject" (click)="rejectStudent(selectedStudent)">
+          Rejeter l'inscription
+        </button>
+        <button
+          type="button"
+          class="btn-action validate"
+          (click)="validateStudent(selectedStudent); closeDetailModal()"
+        >
+          Valider l'apprenant
+        </button>
+      </ng-container>
+      <button type="button" class="btn-secondary" (click)="closeDetailModal()">Fermer</button>
+    </div>
+  </div>
+</div>

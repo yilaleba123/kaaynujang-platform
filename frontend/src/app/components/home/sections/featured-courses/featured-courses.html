@@ -1,0 +1,40 @@
+<!-- Section avec identifiant #cours pour permettre le défilement fluide depuis le menu -->
+<section id="cours" class="courses-section">
+  <div class="container">
+    <!-- En-tête de section avec titre et lien vers le catalogue complet -->
+    <div class="section-header-flex">
+      <div>
+        <h2>{{ 'COURSES.TITLE' | translate }}</h2>
+        <p class="subtitle">{{ 'COURSES.SUBTITLE' | translate }}</p>
+      </div>
+      <!-- Redirection vers la page catalogue (nécessitera une connexion pour lire le contenu) -->
+      <a routerLink="/courses" class="link-catalog"> {{ 'COURSES.SEE_ALL' | translate }} &rarr; </a>
+    </div>
+
+    <!-- Grille dynamique des 3 cours mis en avant (*ngFor) -->
+    <div class="grid-3">
+      <div class="course-card" *ngFor="let course of featuredCourses">
+        <!-- Image avec badge de catégorie et chargement différé (performance) -->
+        <div class="card-media">
+          <img
+            [src]="course.image"
+            [alt]="'Illustration du cours ' + course.title"
+            loading="lazy"
+            decoding="async"
+          />
+          <span class="category-badge">{{ course.category }}</span>
+        </div>
+
+        <!-- Informations synthétiques du cours (pas de fichiers accessibles) -->
+        <div class="card-content">
+          <h3>{{ course.title }}</h3>
+          <div class="course-meta">
+            <span>+ {{ course.level }}</span>
+            <span class="dot" aria-hidden="true">&bull;</span>
+            <span>{{ course.duration }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
