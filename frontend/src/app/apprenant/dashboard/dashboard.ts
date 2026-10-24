@@ -1,94 +1,76 @@
-import { Component, signal } from '@angular/core';
- import { RouterLink } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { LearnerApiService, LearnerQuiz, LearnerResult } from '../../api/learner-api-service';
+import { CoursCatalogue } from '../cours.data';
 
 @Component({
   imports: [RouterLink],
-
   selector: 'app-dashboard',
   styleUrl: './dashboard.css',
   templateUrl: './dashboard.html',
-
-  // Fermeture du menu avec Échap
   host: {
     '(document:keydown.escape)': 'menuOuvert.set(false)',
   },
 })
 export class Dashboard {
-  // Username fourni par la connexion
-  // Username de test
-protected readonly username = signal<string | null>('Fatima');
+  private readonly api = inject(LearnerApiService);
 
-
-// Message selon l'heure locale
-protected readonly salutation = (() => {
-  const heure = new Date().getHours();
-
-  return heure >= 18 || heure < 5 ? 'Bonsoir' : 'Bonjour';
-})();
-
-
-  // État du menu latéral
+  protected readonly username = signal<string | null>(null);
+  protected readonly loading = signal(true);
+  protected readonly error = signal(false);
   protected readonly menuOuvert = signal(false);
+  private readonly tousLesCours = signal<CoursCatalogue[]>([]);
+  protected readonly coursEnCours = computed(
+    () => this.tousLesCours().filter(course => (course.progression ?? 0) < 100),
+  );
+  protected readonly evaluations = signal<LearnerQuiz[]>([]);
+  protected readonly results = signal<LearnerResult[]>([]);
+  protected readonly certificateCount = signal<number | null>(null);
 
-  // Cours de démonstration
-  protected readonly coursAReprendre = {
-    titre: 'Introduction au Marketing Digital',
-    module: 'Le cours n’a pas encore été commencé',
-    progression: 0,
-  };
+  protected readonly salutation = (() => {
+    const heure = new Date().getHours();
+    return heure >= 18 || heure < 5 ? 'Bonsoir' : 'Bonjour';
+  })();
 
-  // Liste de cours de démonstration
-  protected readonly coursEnCours = [
-    {
-      id: 1,
-      titre: 'Introduction au Marketing Digital',
-      formateur: 'Awa Diop',
-      progression: 0,
-    },
-    {
-      id: 2,
-      titre: 'Développement Web React',
-      formateur: 'Cheikh Ndiaye',
-      progression: 0,
-    },
-    {
-      id: 3,
-      titre: 'Design Thinking',
-      formateur: 'Fatou Sow',
-      progression: 0,
-    },
-  ];
+  protected readonly coursAReprendre = computed(() => this.coursEnCours()[0] ?? null);
+  protected readonly coursTermines = computed(
+    () => this.tousLesCours().filter(course => (course.progression ?? 0) === 100).length,
+  );
+  protected readonly averageGrade = computed(() => {
+    const graded = this.results().filter(result => result.grade !== null);
+    return graded.length
+      ? Math.round(graded.reduce((sum, result) => sum + (result.grade ?? 0), 0) / graded.length)
+      : null;
+  });
 
-  // Évaluations de démonstration
-  protected readonly evaluations = [
-    {
-      id: 1,
-      titre: 'Quiz React Hooks',
-      cours: 'Développement Web React',
-      echeance: 'Demain, 23:59',
-    },
-    {
-      id: 2,
-      titre: 'QCM Stratégie SEO',
-      cours: 'Introduction au Marketing Digital',
-      echeance: 'Dans 3 jours',
-    },
-    {
-      id: 3,
-      titre: 'Rendu Prototype',
-      cours: 'Design Thinking',
-      echeance: 'Semaine prochaine',
-    },
-  ];
-
-  // Activité initiale
-  protected readonly activiteHebdomadaire = [
-    { jour: 'Lun', heures: 0 },
-    { jour: 'Mar', heures: 0 },
-    { jour: 'Mer', heures: 0 },
-    { jour: 'Jeu', heures: 0 },
-    { jour: 'Ven', heures: 0 },
-    { jour: 'Sam', heures: 0 },
-    { jour: 'Dim', heures: 0 },
-  ];
+  constructor() {
+    this.api.getProfile().subscribe({
+      next: profile => {
+        this.username.set(profile.first_name || profile.username);
+      },
+      error: () => this.error.set(true),
+    });
+    this.api.getMyCourses().subscribe({
+      next: courses => {
+        this.tousLesCours.set(courses);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set(true);
+        this.loading.set(false);
+      },
+    });
+    this.api.getQuizzes().subscribe({
+      next: quizzes => this.evaluations.set(quizzes),
+      error: () => this.error.set(true),
+    });
+    this.api.getResults().subscribe({
+      next: results => this.results.set(results),
+      error: () => this.error.set(true),
+    });
+    this.api.getCertificates().subscribe({
+      next: certificates => this.certificateCount.set(certificates.length),
+      error: () => this.error.set(true),
+    });
+  }
 }

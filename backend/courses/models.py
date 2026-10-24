@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 
 
 class Category(models.Model):
@@ -18,8 +19,15 @@ class Category(models.Model):
 
 
 class Course(models.Model):
+    LEVEL_CHOICES = (
+        ("beginner", "Débutant"),
+        ("intermediate", "Intermédiaire"),
+        ("advanced", "Avancé"),
+    )
+
     titre = models.CharField(max_length=200)
     description = models.TextField(blank=True)
+    niveau = models.CharField(max_length=20, choices=LEVEL_CHOICES, default="beginner")
     categorie = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
@@ -31,6 +39,7 @@ class Course(models.Model):
         related_name="courses_enseignes",
     )
     is_published = models.BooleanField(default=False)
+    is_archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -62,8 +71,15 @@ class Module(models.Model):
 
 
 class Lesson(models.Model):
+    TYPE_CHOICES = (
+        ("video", "Vidéo"),
+        ("text", "Texte"),
+        ("pdf", "PDF"),
+    )
+
     titre = models.CharField(max_length=200)
     contenu = models.TextField()
+    type = models.CharField(max_length=10, choices=TYPE_CHOICES, default="text")
     video_url = models.URLField(blank=True)
     ordre = models.PositiveIntegerField(default=0)
     module = models.ForeignKey(
@@ -84,6 +100,7 @@ class Lesson(models.Model):
 class Document(models.Model):
     titre = models.CharField(max_length=200)
     fichier = models.FileField(upload_to="documents/")
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
     cours = models.ForeignKey(
         Course,
         on_delete=models.CASCADE,

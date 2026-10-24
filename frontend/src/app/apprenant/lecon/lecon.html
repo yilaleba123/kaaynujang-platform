@@ -1,6 +1,10 @@
 <main class="lesson-page">
 
-  @if (cours(); as coursSelectionne) {
+  @if (loading()) {
+    <p role="status">Chargement de la leçon…</p>
+  } @else if (error() && !cours()) {
+    <section class="lesson-not-found" role="alert"><p>{{ error() }}</p></section>
+  } @else if (cours(); as coursSelectionne) {
 
     <!-- Retour au cours -->
     <a
@@ -45,6 +49,14 @@
         >
           <p>{{ leconSelectionnee.contenu }}</p>
         </article>
+        @if (error()) { <p role="alert">{{ error() }}</p> }
+        <button
+          type="button"
+          [disabled]="leconSelectionnee.completed || savingProgress()"
+          (click)="terminerLecon()"
+        >
+          {{ leconSelectionnee.completed ? 'Leçon terminée' : savingProgress() ? 'Enregistrement…' : 'Marquer comme terminée' }}
+        </button>
 
       } @else {
 

@@ -39,6 +39,11 @@
   </select>
 </div>
 
+  @if (loading()) {
+    <p role="status">Chargement du catalogue…</p>
+  } @else if (error()) {
+    <p role="alert">Le catalogue n’a pas pu être chargé. Réessayez plus tard.</p>
+  } @else {
   <!-- Liste des cours disponibles -->
   <section class="catalogue-grid" aria-label="Cours disponibles">
     @for (cours of coursFiltres(); track cours.id) {
@@ -47,11 +52,9 @@
         <!-- Illustration provisoire -->
         <div class="catalogue-illustration">
           <!-- Photo du cours -->
-         <img
-          class="catalogue-image"
-          [src]="cours.image"
-          [alt]="cours.titre"
-          />
+         @if (cours.image) {
+           <img class="catalogue-image" [src]="cours.image" [alt]="cours.titre" />
+         }
 
 
           <!-- Niveau du cours -->
@@ -105,6 +108,6 @@
       </p>
     }
   </section>
+  }
 
 </main>
-

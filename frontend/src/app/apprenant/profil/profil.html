@@ -1,1 +1,29 @@
-<p>profil works!</p>
+<main class="learner-profile">
+  <h1>Mon profil</h1>
+  @if (loading()) {
+    <p role="status">Chargement du profil…</p>
+  } @else {
+    @if (error()) { <p role="alert">Le profil n’a pas pu être chargé ou enregistré.</p> }
+    @if (success()) { <p role="status">Profil mis à jour.</p> }
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <label for="learner-first-name">Prénom</label>
+      <input id="learner-first-name" formControlName="firstName" autocomplete="given-name" />
+
+      <label for="learner-last-name">Nom</label>
+      <input id="learner-last-name" formControlName="lastName" autocomplete="family-name" />
+
+      <label for="learner-email">Adresse e-mail</label>
+      <input id="learner-email" type="email" [value]="email()" readonly />
+
+      <label for="learner-phone">Téléphone</label>
+      <input id="learner-phone" type="tel" formControlName="phone" autocomplete="tel" />
+
+      <label for="learner-bio">À propos</label>
+      <textarea id="learner-bio" formControlName="bio" rows="4"></textarea>
+
+      <button type="submit" [disabled]="saving()">
+        {{ saving() ? 'Enregistrement…' : 'Enregistrer les modifications' }}
+      </button>
+    </form>
+  }
+</main>

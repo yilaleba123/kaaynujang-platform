@@ -131,7 +131,7 @@ export interface Conversation {
 export interface Message { id: string; fromMe: boolean; content: string; sentAt: string; }
 
 /* ---------- Auth / profile / notifications ---------- */
-export interface AuthResponse { token: string; }
+export interface AuthResponse { token: string; refresh?: string; role: 'APPRENANT' | 'ENSEIGNANT' | 'ADMIN'; }
 
 export interface TeacherProfile extends Teacher {
   email: string;

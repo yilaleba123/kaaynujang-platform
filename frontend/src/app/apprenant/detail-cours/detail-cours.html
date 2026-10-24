@@ -23,15 +23,20 @@
  </svg>
 </a>
 
-  @if (cours(); as coursSelectionne) {
+  @if (loading()) {
+    <p role="status">Chargement du cours…</p>
+  } @else if (error() && !cours()) {
+    <section class="course-not-found" role="alert">
+      <h1>Cours introuvable</h1>
+      <p>{{ error() }}</p>
+    </section>
+  } @else if (cours(); as coursSelectionne) {
     <!-- Présentation du cours -->
     <article class="course-detail-card">
 
-      <img
-        class="course-detail-image"
-        [src]="coursSelectionne.image"
-        [alt]="coursSelectionne.titre"
-      />
+      @if (coursSelectionne.image) {
+        <img class="course-detail-image" [src]="coursSelectionne.image" [alt]="coursSelectionne.titre" />
+      }
 
       <div class="course-detail-content">
         <span class="course-detail-level">
@@ -48,11 +53,12 @@
 <button
   class="enroll-button"
   type="button"
-  [disabled]="estInscrit()"
+  [disabled]="estInscrit() || enrolling()"
   (click)="inscrireAuCours()"
 >
-  {{ estInscrit() ? 'Cours déjà rejoint' : 'S’inscrire au cours' }}
+  {{ estInscrit() ? 'Cours déjà rejoint' : enrolling() ? 'Inscription…' : 'S’inscrire au cours' }}
 </button>
+@if (error()) { <p role="alert">{{ error() }}</p> }
 
       </div>
 

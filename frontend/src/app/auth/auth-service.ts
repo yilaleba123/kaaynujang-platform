@@ -22,7 +22,7 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, { email, password }).pipe(
+    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login/`, { email, password }).pipe(
       tap(r => {
         if (!r?.token) {
           throw new Error('La réponse de connexion ne contient pas de jeton.');
@@ -34,20 +34,20 @@ export class AuthService {
   }
 
   register(data: FormData): Observable<void> {
-    return this.http.post<void>(`${environment.apiUrl}/auth/register`, data);
+    return this.http.post<void>(`${environment.apiUrl}/auth/register/`, data);
   }
 
   forgotPassword(email: string): Observable<void> {
-    return this.http.post<void>(`${environment.apiUrl}/auth/forgot-password`, { email });
+    return this.http.post<void>(`${environment.apiUrl}/auth/forgot-password/`, { email });
   }
 
   resetPassword(token: string, password: string): Observable<void> {
-    return this.http.post<void>(`${environment.apiUrl}/auth/reset-password`, { token, password });
+    return this.http.post<void>(`${environment.apiUrl}/auth/reset-password/`, { token, password });
   }
 
   /** Prévient le serveur (si possible), puis efface la session locale. */
   logout(): void {
-    this.http.post(`${environment.apiUrl}/auth/logout`, {}).pipe(
+    this.http.post(`${environment.apiUrl}/auth/logout/`, {}).pipe(
       catchError(() => of(null)),
       finalize(() => this.expire()),
     ).subscribe();

@@ -12,15 +12,18 @@
   <!-- Liste des cours inscrits -->
   <section class="mes-cours-grid" aria-label="Mes cours inscrits">
 
+    @if (loading()) {
+      <p role="status">Chargement de vos cours…</p>
+    } @else if (error()) {
+      <p role="alert">Vos cours n’ont pas pu être chargés. Réessayez plus tard.</p>
+    } @else {
     @for (cours of mesCours(); track cours.id) {
       <article class="mes-cours-card">
 
         <!-- Photo du cours -->
-        <img
-          class="mes-cours-image"
-          [src]="cours.image"
-          [alt]="cours.titre"
-        />
+        @if (cours.image) {
+          <img class="mes-cours-image" [src]="cours.image" [alt]="cours.titre" />
+        }
 
         <div class="mes-cours-content">
           <span class="mes-cours-level">
@@ -57,6 +60,7 @@
           Voir le catalogue
         </a>
       </section>
+    }
     }
 
   </section>

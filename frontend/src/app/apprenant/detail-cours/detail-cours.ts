@@ -1,9 +1,7 @@
-import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-
-import { COURS_DEMONSTRATION } from '../cours.data';
-import { InscriptionService } from '../inscription.service';
+import { LearnerApiService } from '../../api/learner-api-service';
+import { CoursCatalogue } from '../cours.data';
 
 @Component({
   imports: [RouterLink],
@@ -12,39 +10,48 @@ import { InscriptionService } from '../inscription.service';
   templateUrl: './detail-cours.html',
 })
 export class DetailCours {
-  // Informations de la route actuelle.
   private readonly route = inject(ActivatedRoute);
+  private readonly api = inject(LearnerApiService);
 
-  // Service qui gère les inscriptions.
-  protected readonly inscriptionService = inject(InscriptionService);
+  protected readonly cours = signal<CoursCatalogue | null>(null);
+  protected readonly loading = signal(true);
+  protected readonly enrolling = signal(false);
+  protected readonly error = signal<string | null>(null);
+  protected readonly estInscrit = signal(false);
 
-  // Paramètres présents dans l'adresse.
-  private readonly parametres = toSignal(this.route.paramMap, {
-    initialValue: this.route.snapshot.paramMap,
-  });
-
-  // Cours correspondant à l'identifiant dans l'adresse.
-  protected readonly cours = computed(() => {
-    const id = Number(this.parametres().get('id'));
-
-    return COURS_DEMONSTRATION.find((cours) => cours.id === id);
-  });
-
-  // Vérifie si l'apprenant est déjà inscrit au cours.
-  protected readonly estInscrit = computed(() => {
-    const coursSelectionne = this.cours();
-
-    return coursSelectionne
-      ? this.inscriptionService.estInscrit(coursSelectionne.id)
-      : false;
-  });
-
-  // Inscrit l'apprenant au cours sélectionné.
-  protected inscrireAuCours(): void {
-    const coursSelectionne = this.cours();
-
-    if (coursSelectionne) {
-      this.inscriptionService.inscrire(coursSelectionne.id);
+  constructor() {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    if (!Number.isInteger(id) || id <= 0) {
+      this.loading.set(false);
+      return;
     }
+    this.api.getCourse(id).subscribe({
+      next: course => {
+        this.cours.set(course);
+        this.estInscrit.set(!!course.est_inscrit);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Ce cours est introuvable ou n’est plus disponible.');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  protected inscrireAuCours(): void {
+    const course = this.cours();
+    if (!course || this.enrolling() || this.estInscrit()) return;
+    this.enrolling.set(true);
+    this.error.set(null);
+    this.api.enroll(course.id).subscribe({
+      next: () => {
+        this.estInscrit.set(true);
+        this.enrolling.set(false);
+      },
+      error: () => {
+        this.error.set('L’inscription au cours a échoué. Réessayez.');
+        this.enrolling.set(false);
+      },
+    });
   }
 }

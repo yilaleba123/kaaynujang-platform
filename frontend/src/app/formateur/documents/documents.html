@@ -1,9 +1,23 @@
 <div class="flex items-center justify-between">
   <h1 class="page-title">Documents</h1>
-  <label class="btn-primary cursor-pointer" [class.opacity-50]="uploading()">
+  <div class="flex items-center gap-3">
+    <label for="document-course" class="sr-only">Cours du document</label>
+    <select
+      id="document-course"
+      class="field"
+      [value]="selectedCourseId()"
+      (change)="selectCourse($event)"
+    >
+      <option value="">Choisir un cours</option>
+      @for (course of courses(); track course.id) {
+        <option [value]="course.id">{{ course.title }}</option>
+      }
+    </select>
+  <label class="btn-primary cursor-pointer" [class.opacity-50]="uploading() || !selectedCourseId()">
     <app-icon name="upload" /> {{ uploading() ? 'Envoi…' : 'Téléverser un fichier' }}
-    <input type="file" class="sr-only" [disabled]="uploading()" (change)="onFile($event)" />
+    <input type="file" class="sr-only" [disabled]="uploading() || !selectedCourseId()" (change)="onFile($event)" />
   </label>
+  </div>
 </div>
 
 @if (error()) { <p class="mt-6 rounded-lg bg-red-50 p-3 text-red-700">{{ error() }}</p> }

@@ -1,8 +1,7 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-
-import { COURS_DEMONSTRATION } from '../cours.data';
-import { InscriptionService } from '../inscription.service';
+import { LearnerApiService } from '../../api/learner-api-service';
+import { CoursCatalogue } from '../cours.data';
 
 @Component({
   imports: [RouterLink],
@@ -11,15 +10,22 @@ import { InscriptionService } from '../inscription.service';
   templateUrl: './mes-cours.html',
 })
 export class MesCours {
-  // Service qui contient les inscriptions locales.
-  private readonly inscriptionService = inject(InscriptionService);
+  private readonly api = inject(LearnerApiService);
 
-  // Cours auxquels l'apprenant est inscrit.
-  protected readonly mesCours = computed(() => {
-    const coursInscrits = this.inscriptionService.obtenirCoursInscrits();
+  protected readonly mesCours = signal<CoursCatalogue[]>([]);
+  protected readonly loading = signal(true);
+  protected readonly error = signal(false);
 
-    return COURS_DEMONSTRATION.filter((cours) =>
-      coursInscrits.includes(cours.id)
-    );
-  });
+  constructor() {
+    this.api.getMyCourses().subscribe({
+      next: courses => {
+        this.mesCours.set(courses);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set(true);
+        this.loading.set(false);
+      },
+    });
+  }
 }

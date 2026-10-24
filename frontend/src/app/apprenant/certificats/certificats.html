@@ -1,1 +1,18 @@
-<p>certificats works!</p>
+<main class="learner-certificates">
+  <h1>Mes certificats</h1>
+  @if (loading()) {
+    <p role="status">Chargement des certificats…</p>
+  } @else if (error()) {
+    <p role="alert">Les certificats n’ont pas pu être chargés.</p>
+  } @else {
+    @for (certificate of certificates(); track certificate.id) {
+      <article>
+        <h2>{{ certificate.courseTitle }}</h2>
+        <p>Obtenu le {{ certificate.issuedAt | date:'longDate' }}</p>
+        <p>Référence : {{ certificate.id }}</p>
+      </article>
+    } @empty {
+      <p>Terminez toutes les leçons d’un cours pour obtenir votre certificat.</p>
+    }
+  }
+</main>

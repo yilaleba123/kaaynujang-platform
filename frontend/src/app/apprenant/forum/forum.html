@@ -1,1 +1,74 @@
-<p>forum works!</p>
+<main class="learner-forum">
+  <h1>Forum des cours</h1>
+  @if (error()) { <p role="alert">{{ error() }}</p> }
+  @if (loading() && courses().length === 0) {
+    <p role="status">Chargement de vos cours…</p>
+  } @else if (courses().length === 0) {
+    <p>Inscrivez-vous à un cours pour participer à ses discussions.</p>
+  } @else {
+    <label for="forum-course">Cours</label>
+    <select
+      id="forum-course"
+      [value]="selectedCourseId()"
+      (change)="onCourseChange($event)"
+    >
+      @for (course of courses(); track course.id) {
+        <option [value]="course.id">{{ course.titre }}</option>
+      }
+    </select>
+
+    <form (ngSubmit)="publish()">
+      <label for="forum-new-post">Votre message</label>
+      <textarea
+        id="forum-new-post"
+        name="post"
+        rows="3"
+        [ngModel]="draft()"
+        (ngModelChange)="draft.set($event)"
+        required
+      ></textarea>
+      <button type="submit" [disabled]="saving() || !draft().trim()">Publier</button>
+    </form>
+
+    @if (loading()) {
+      <p role="status">Chargement des discussions…</p>
+    } @else {
+      @for (post of posts(); track post.id) {
+        <article>
+          <header>
+            <strong>{{ post.author }}</strong>
+            <time [attr.datetime]="post.createdAt">{{ post.createdAt | date:'medium' }}</time>
+          </header>
+          <p>{{ post.content }}</p>
+          <section aria-label="Réponses">
+            @for (comment of post.comments; track comment.id) {
+              <article>
+                <strong>{{ comment.author }}</strong>
+                <p>{{ comment.content }}</p>
+                <time [attr.datetime]="comment.createdAt">{{ comment.createdAt | date:'short' }}</time>
+              </article>
+            }
+          </section>
+          @if (replyingTo() === post.id) {
+            <form (ngSubmit)="reply(post)">
+              <label [for]="'reply-' + post.id">Votre réponse</label>
+              <textarea
+                [id]="'reply-' + post.id"
+                [name]="'reply-' + post.id"
+                rows="2"
+                [ngModel]="replyDraft()"
+                (ngModelChange)="replyDraft.set($event)"
+                required
+              ></textarea>
+              <button type="submit" [disabled]="saving() || !replyDraft().trim()">Répondre</button>
+            </form>
+          } @else {
+            <button type="button" (click)="replyingTo.set(post.id)">Répondre</button>
+          }
+        </article>
+      } @empty {
+        <p>Aucun message dans ce cours. Lancez la discussion.</p>
+      }
+    }
+  }
+</main>

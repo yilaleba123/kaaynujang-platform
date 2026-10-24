@@ -24,15 +24,29 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECURITY WARNING: don't run with debug turned on in production!
 # Configuration Sécurité
-SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+SECRET_KEY = os.getenv("SECRET_KEY") or (
+    "development-only-secret-key-replace-before-deployment-please"
+)
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in (os.getenv("ALLOWED_HOSTS") or "localhost,127.0.0.1").split(",")
+    if host.strip()
+]
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:4200").rstrip("/")
 
 # Spécifier le modèle utilisateur personnalisé
 AUTH_USER_MODEL = 'authentication.User'
 
 # Autoriser la communication avec le frontend Angular (port 4200)
-CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
+CORS_ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in (
+        os.getenv("CORS_ALLOWED_ORIGINS")
+        or "http://localhost:4200,http://127.0.0.1:4200"
+    ).split(",")
+    if origin.strip()
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -46,6 +60,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'authentication',
     'courses',
+    'apprenant',
+    'formateur',
 ]
 
 MIDDLEWARE = [
@@ -64,7 +80,10 @@ ROOT_URLCONF = 'core.urls'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
 }
 
 TEMPLATES = [
@@ -88,17 +107,25 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
-# Base de Données PostgreSQL
-DATABASES = {
-    'default': {
-        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
+# Base de Données
+if os.getenv('DB_ENGINE') or os.getenv('DB_NAME'):
+    DATABASES = {
+        'default': {
+            'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
+            'NAME': os.getenv('DB_NAME', 'kaaynujang'),
+            'USER': os.getenv('DB_USER', ''),
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
@@ -145,3 +172,7 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "no-reply@kaaynujang.local")
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"

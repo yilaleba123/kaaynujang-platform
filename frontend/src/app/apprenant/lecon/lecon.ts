@@ -1,9 +1,7 @@
-import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-
-import { COURS_DEMONSTRATION } from '../cours.data';
-import { InscriptionService } from '../inscription.service';
+import { LearnerApiService } from '../../api/learner-api-service';
+import { CoursCatalogue, Lecon as LessonData } from '../cours.data';
 
 @Component({
   imports: [RouterLink],
@@ -12,40 +10,53 @@ import { InscriptionService } from '../inscription.service';
   templateUrl: './lecon.html',
 })
 export class Lecon {
-  // Informations de la route actuelle.
   private readonly route = inject(ActivatedRoute);
+  private readonly api = inject(LearnerApiService);
 
-  // Service qui contient les inscriptions.
-  private readonly inscriptionService = inject(InscriptionService);
+  protected readonly cours = signal<CoursCatalogue | null>(null);
+  protected readonly lecon = signal<LessonData | null>(null);
+  protected readonly loading = signal(true);
+  protected readonly estInscrit = signal(false);
+  protected readonly savingProgress = signal(false);
+  protected readonly error = signal<string | null>(null);
 
-  // Paramètres présents dans l'adresse.
-  private readonly parametres = toSignal(this.route.paramMap, {
-    initialValue: this.route.snapshot.paramMap,
-  });
+  constructor() {
+    const courseId = Number(this.route.snapshot.paramMap.get('coursId'));
+    const lessonId = Number(this.route.snapshot.paramMap.get('leconId'));
+    if (!Number.isInteger(courseId) || courseId < 1 || !Number.isInteger(lessonId) || lessonId < 1) {
+      this.loading.set(false);
+      return;
+    }
+    this.api.getCourse(courseId).subscribe({
+      next: course => {
+        this.cours.set(course);
+        this.estInscrit.set(!!course.est_inscrit);
+        const lesson = course.modules
+          ?.flatMap(module => module.lecons)
+          .find(item => item.id === lessonId) ?? null;
+        this.lecon.set(lesson);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('La leçon n’a pas pu être chargée.');
+        this.loading.set(false);
+      },
+    });
+  }
 
-  // Cours auquel appartient la leçon.
-  protected readonly cours = computed(() => {
-    const coursId = Number(this.parametres().get('coursId'));
-
-    return COURS_DEMONSTRATION.find((cours) => cours.id === coursId);
-  });
-
-  // Vérifie si l'apprenant est inscrit au cours.
-  protected readonly estInscrit = computed(() => {
-    const coursSelectionne = this.cours();
-
-    return coursSelectionne
-      ? this.inscriptionService.estInscrit(coursSelectionne.id)
-      : false;
-  });
-
-  // Leçon sélectionnée dans le cours.
-  protected readonly lecon = computed(() => {
-    const leconId = Number(this.parametres().get('leconId'));
-    const modules = this.cours()?.modules ?? [];
-
-    return modules
-      .flatMap((module) => module.lecons)
-      .find((lecon) => lecon.id === leconId);
-  });
+  protected terminerLecon(): void {
+    const lesson = this.lecon();
+    if (!lesson || lesson.completed || this.savingProgress()) return;
+    this.savingProgress.set(true);
+    this.api.completeLesson(lesson.id).subscribe({
+      next: () => {
+        this.lecon.update(current => current ? { ...current, completed: true } : current);
+        this.savingProgress.set(false);
+      },
+      error: () => {
+        this.error.set('La progression n’a pas pu être enregistrée.');
+        this.savingProgress.set(false);
+      },
+    });
+  }
 }

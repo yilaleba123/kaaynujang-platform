@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ApiService } from '../../api/api-service';
-import { DocumentItem } from '../../api/models';
+import { Course, DocumentItem } from '../../api/models';
 import { Icon } from '../../shared/icon';
 
 @Component({
@@ -13,23 +13,39 @@ import { Icon } from '../../shared/icon';
 export class Documents {
   private readonly api = inject(ApiService);
   readonly docs = signal<DocumentItem[] | null>(null);
+  readonly courses = signal<Course[]>([]);
+  readonly selectedCourseId = signal('');
   readonly uploading = signal(false);
   readonly error = signal<string | null>(null);
 
   constructor() {
     this.api.getDocuments().subscribe({ next: d => this.docs.set(d), error: () => this.error.set('Impossible de charger les documents.') });
+    this.api.getCourses().subscribe({
+      next: courses => this.courses.set(courses),
+      error: () => this.error.set('Impossible de charger les cours pour le téléversement.'),
+    });
   }
 
   onFile(e: Event) {
     const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
+    const courseId = this.selectedCourseId();
+    if (!courseId) {
+      this.error.set('Sélectionnez le cours auquel rattacher ce document.');
+      input.value = '';
+      return;
+    }
     this.uploading.set(true);
     this.error.set(null);
-    this.api.uploadDocument(file).subscribe({
+    this.api.uploadDocument(file, courseId).subscribe({
       next: d => { this.docs.update(l => [d, ...(l ?? [])]); this.uploading.set(false); input.value = ''; },
       error: () => { this.uploading.set(false); this.error.set("L'envoi du fichier a échoué."); },
     });
+  }
+
+  selectCourse(e: Event) {
+    this.selectedCourseId.set((e.target as HTMLSelectElement).value);
   }
 
   remove(d: DocumentItem) {

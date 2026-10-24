@@ -1,7 +1,8 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { COURS_DEMONSTRATION } from '../cours.data';
+import { LearnerApiService } from '../../api/learner-api-service';
+import { CoursCatalogue } from '../cours.data';
 
 @Component({
   imports: [RouterLink],
@@ -10,8 +11,10 @@ import { COURS_DEMONSTRATION } from '../cours.data';
   templateUrl: './catalogue.html',
 })
 export class Catalogue {
-  // Liste partagée des cours.
-  protected readonly coursDisponibles = COURS_DEMONSTRATION;
+  private readonly api = inject(LearnerApiService);
+  protected readonly coursDisponibles = signal<CoursCatalogue[]>([]);
+  protected readonly loading = signal(true);
+  protected readonly error = signal(false);
 
   // Texte saisi dans la recherche.
   protected readonly recherche = signal('');
@@ -24,7 +27,7 @@ export class Catalogue {
     const texte = this.recherche().trim().toLocaleLowerCase('fr');
     const niveau = this.niveauSelectionne();
 
-    return this.coursDisponibles.filter((cours) => {
+    return this.coursDisponibles().filter((cours) => {
       const correspondAuTitre = cours.titre
         .toLocaleLowerCase('fr')
         .includes(texte);
@@ -35,4 +38,17 @@ export class Catalogue {
       return correspondAuTitre && correspondAuNiveau;
     });
   });
+
+  constructor() {
+    this.api.getCatalogue().subscribe({
+      next: courses => {
+        this.coursDisponibles.set(courses);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set(true);
+        this.loading.set(false);
+      },
+    });
+  }
 }

@@ -1,1 +1,56 @@
-<p>quiz works!</p>
+<main class="learner-quiz">
+  @if (error()) {
+    <p role="alert">{{ error() }}</p>
+  }
+  @if (result() !== null) {
+    <section aria-live="polite">
+      <h1>Évaluation terminée</h1>
+      <p>Votre résultat : {{ result() }} / 100</p>
+      <button type="button" (click)="backToList()">Retour aux évaluations</button>
+    </section>
+  } @else if (selectedQuiz(); as quiz) {
+    @if (loading()) {
+      <p role="status">Chargement de l’évaluation…</p>
+    } @else {
+      <button type="button" (click)="backToList()">Retour aux évaluations</button>
+      <h1>{{ quiz.title }}</h1>
+      <p>{{ quiz.courseTitle }} · {{ quiz.durationMinutes }} minutes</p>
+      @for (question of quiz.questions; track question.id; let questionIndex = $index) {
+        <fieldset>
+          <legend>{{ questionIndex + 1 }}. {{ question.text }}</legend>
+          @for (option of question.options; track $index; let optionIndex = $index) {
+            <label>
+              <input
+                type="radio"
+                [name]="'question-' + question.id"
+                [checked]="answers()[questionIndex] === optionIndex"
+                (change)="selectAnswer(questionIndex, optionIndex)"
+              />
+              {{ option }}
+            </label>
+          }
+        </fieldset>
+      }
+      <button type="button" [disabled]="saving()" (click)="submit()">
+        {{ saving() ? 'Envoi…' : 'Valider mes réponses' }}
+      </button>
+    }
+  } @else {
+    <h1>Mes évaluations</h1>
+    @if (loading()) {
+      <p role="status">Chargement des évaluations…</p>
+    } @else {
+      @for (quiz of quizzes(); track quiz.id) {
+        <article>
+          <h2>{{ quiz.title }}</h2>
+          <p>{{ quiz.courseTitle }} · {{ quiz.questionsCount }} questions · {{ quiz.durationMinutes }} min</p>
+          <button type="button" [disabled]="quiz.attempted" (click)="selectQuiz(quiz)">
+            {{ quiz.attempted ? 'Déjà réalisée' : 'Commencer' }}
+          </button>
+        </article>
+      } @empty {
+        <p>Aucune évaluation n’est disponible pour vos cours.</p>
+      }
+    }
+  }
+</main>

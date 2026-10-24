@@ -21,14 +21,13 @@ export class LoginComponent {
   ) {}
 
   onSubmit() {
-    this.authService.login(this.credentials).subscribe({
-      next: (response: any) => {
-        localStorage.setItem('access_token', response.access);
-        localStorage.setItem('refresh_token', response.refresh);
-        // Redirection vers le tableau de bord
-        this.router.navigate(['/dashboard']);
+    this.authService.login(this.credentials.username, this.credentials.password).subscribe({
+      next: (response) => {
+        this.router.navigate([
+          response.role === 'APPRENANT' ? '/apprenant/dashboard' : '/formateur',
+        ]);
       },
-      error: (err: any) => {
+      error: () => {
         this.errorMessage = 'Identifiants incorrects ou compte inactif.';
       },
     });

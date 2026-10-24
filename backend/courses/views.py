@@ -29,15 +29,33 @@ def get_course_owner(obj):
 class IsInstructorOrReadOnly(permissions.BasePermission):
     """Lecture pour tous ; modification réservée à l'instructeur du cours."""
 
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and request.user.role == "ENSEIGNANT"
+        )
+
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
-        return get_course_owner(obj) == request.user
+        return (
+            request.user.is_authenticated
+            and request.user.role == "ENSEIGNANT"
+            and get_course_owner(obj) == request.user
+        )
 
 
 def visible_courses_filter(user, prefix=""):
     """Cours publiés, plus les brouillons de l'utilisateur connecté."""
-    condition = Q(**{f"{prefix}is_published": True})
+    condition = Q(
+        **{
+            f"{prefix}is_published": True,
+            f"{prefix}is_archived": False,
+        }
+    )
     if user.is_authenticated:
         condition |= Q(**{f"{prefix}instructeur": user})
     return condition
@@ -47,6 +65,11 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_permissions(self):
+        if self.request.method not in permissions.SAFE_METHODS:
+            return [permissions.IsAdminUser()]
+        return super().get_permissions()
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -127,4 +150,3 @@ class DocumentViewSet(CourseContentViewSet):
             visible_courses_filter(user, "cours__")
             | visible_courses_filter(user, "lecon__module__cours__")
         ).select_related("cours__instructeur", "lecon__module__cours__instructeur")
-

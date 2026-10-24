@@ -1,1 +1,23 @@
-<p>notifications works!</p>
+<main class="learner-notifications">
+  <header>
+    <h1>Mes notifications</h1>
+    <button type="button" (click)="markAllRead()">Tout marquer comme lu</button>
+  </header>
+  @if (loading()) {
+    <p role="status">Chargement des notifications…</p>
+  } @else if (error()) {
+    <p role="alert">Une opération sur les notifications a échoué.</p>
+  }
+  @for (item of items(); track item.id) {
+    <article [class.notification-unread]="!item.read">
+      <h2>{{ item.title }}</h2>
+      <p>{{ item.message }}</p>
+      <time [attr.datetime]="item.createdAt">{{ item.createdAt | date:'medium' }}</time>
+      @if (!item.read) {
+        <button type="button" (click)="markRead(item)">Marquer comme lue</button>
+      }
+    </article>
+  } @empty {
+    @if (!loading() && !error()) { <p>Aucune notification.</p> }
+  }
+</main>

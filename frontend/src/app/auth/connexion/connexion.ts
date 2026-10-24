@@ -54,7 +54,9 @@ export class Connexion {
     this.auth.login(email, password).pipe(
       finalize(() => this.loading.set(false)),
     ).subscribe({
-      next: () => this.router.navigate(['/formateur']),
+      next: response => this.router.navigate([
+        response.role === 'APPRENANT' ? '/apprenant/dashboard' : '/formateur',
+      ]),
       error: () => this.error.set('Email ou mot de passe incorrect.'),
     });
   }

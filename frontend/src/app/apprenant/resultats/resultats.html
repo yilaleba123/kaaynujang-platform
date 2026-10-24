@@ -1,1 +1,25 @@
-<p>resultats works!</p>
+<main class="learner-results">
+  <h1>Mes résultats</h1>
+  @if (loading()) {
+    <p role="status">Chargement des résultats…</p>
+  } @else if (error()) {
+    <p role="alert">Les résultats n’ont pas pu être chargés.</p>
+  } @else {
+    @for (item of results(); track item.id) {
+      <article>
+        <h2>{{ item.quizTitle }}</h2>
+        <p>{{ item.courseTitle }} · {{ item.submittedAt | date:'mediumDate' }}</p>
+        @if (item.grade === null) {
+          <p>Résultat en attente de correction.</p>
+        } @else {
+          <p>Note : {{ item.grade }} / {{ item.maxGrade }}</p>
+        }
+        @if (item.comment) {
+          <p>Commentaire : {{ item.comment }}</p>
+        }
+      </article>
+    } @empty {
+      <p>Vous n’avez pas encore remis d’évaluation.</p>
+    }
+  }
+</main>
